@@ -1,9 +1,11 @@
+import { Like } from 'src/likes/entities/likes.entity';
 import { User } from 'src/users/entities/user.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -25,9 +27,6 @@ export class Post {
   @Column({ type: 'text', nullable: true })
   location: string;
 
-  @Column({ type: 'int', default: 0 })
-  likesCount: number;
-
   @CreateDateColumn()
   createdAt: Date;
 
@@ -36,4 +35,7 @@ export class Post {
 
   @ManyToOne(() => User, (user) => user.posts, { cascade: true })
   user: User;
+
+  @OneToMany(() => Like, (like) => like.post)
+  likes: Like[];
 }

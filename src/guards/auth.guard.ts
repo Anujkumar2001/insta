@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {
   CanActivate,
   ExecutionContext,
@@ -5,7 +9,6 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { Observable } from 'rxjs';
 import config from 'src/core/config';
 
 @Injectable()
@@ -23,6 +26,7 @@ export class AuthGuard implements CanActivate {
       });
       request['user'] = payload;
     } catch (error) {
+      console.error(error);
       throw new UnauthorizedException('invalid token');
     }
     return true;

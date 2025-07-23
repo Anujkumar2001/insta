@@ -2,8 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UsersService } from 'src/users/users.service';
 import { Repository } from 'typeorm';
-import { Post } from './entities/post';
-import { CreatePostDto } from './types';
+import { Post } from './entities/post.entity';
 
 @Injectable()
 export class PostService {
@@ -21,12 +20,11 @@ export class PostService {
   ) {
     const user = await this.userService.findUserById(userId);
     if (user) {
-      const post = this.postRepository.create({
-        caption,
-        imgUrl,
-        location,
-        userId,
-      } as CreatePostDto);
+      const post = new Post();
+      post.caption = caption;
+      post.imgUrl = imgUrl;
+      post.location = location;
+      post.userId = userId;
       try {
         const savedPost = await this.postRepository.save(post);
         return savedPost;
@@ -37,5 +35,14 @@ export class PostService {
     } else {
       throw new NotFoundException('User not found');
     }
+  }
+  async getAllPost(userId: number) {
+    const allPost = this.postRepository.find({ where: { userId } });
+    return allPost;
+  }
+
+  async getPostById(postId: number) {
+    const post = this.postRepository.findOne({ where: { id: postId } });
+    return post;
   }
 }
