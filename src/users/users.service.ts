@@ -40,4 +40,9 @@ export class UsersService {
       return { message: 'Internal server error', statusCode: 500 };
     }
   }
+
+  async findUserById(userId): Promise<User | null> {
+    const user = await this.userRepository.findOneBy(userId);
+    return user;
+  }
 }
