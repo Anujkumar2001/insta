@@ -6,6 +6,7 @@ import { Post } from './entities/post.entity';
 
 @Injectable()
 export class PostService {
+  findPostById: any;
   constructor(
     @InjectRepository(Post)
     private readonly postRepository: Repository<Post>,

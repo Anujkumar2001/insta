@@ -3,6 +3,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import config from 'src/core/config';
 import { PostModule } from 'src/post/post.module';
+import { UsersModule } from 'src/users/users.module';
 import { Like } from './entities/likes.entity';
 import { LikesController } from './likes.controller';
 import { LikesService } from './likes.service';
@@ -10,6 +11,7 @@ import { LikesService } from './likes.service';
   imports: [
     TypeOrmModule.forFeature([Like]),
     PostModule,
+    UsersModule,
     JwtModule.register({ secret: config.db.auth.JWT_SECRET }),
   ],
   controllers: [LikesController],

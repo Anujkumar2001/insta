@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PostService } from 'src/post/post.service';
+import { UsersService } from 'src/users/users.service';
 import { Repository } from 'typeorm';
 import { Like } from './entities/likes.entity';
 
@@ -10,24 +12,68 @@ export class LikesService {
     @InjectRepository(Like)
     private readonly likesRepository: Repository<Like>,
     private postService: PostService,
+    private usersService: UsersService,
   ) {}
   async createLike(postId: number, userId: number) {
-    let like = await this.likesRepository.findOne({
-      where: { post: { id: postId } },
-      relations: ['post'],
-    });
-    if (like) {
-      // If like exists, increment the count
-      like.likesCount += 1;
-    } else {
-      // If no like exists, create a new one
-      const newLike = this.likesRepository.create({
-        likesCount: 1,
-        post: { id: postId }, // This will automatically set the post relation
-        userId,
+    try {
+      // First, check if the user exists
+      const user = await this.usersService.findUserById(userId);
+      if (!user) {
+        return {
+          success: false,
+          message: `User with ID ${userId} does not exist`,
+          statusCode: 404,
+        };
+      }
+
+      // Then check if the post exists
+      const post = await this.postService.getPostById(postId);
+      if (!post) {
+        return {
+          success: false,
+          message: `Post with ID ${postId} does not exist`,
+          statusCode: 404,
+        };
+      }
+
+      // Check if the like already exists
+      let like = await this.likesRepository.findOne({
+        where: {
+          postId,
+          userId,
+        },
       });
-      like = newLike;
+
+      if (like) {
+        return {
+          success: true,
+          message: 'Post already liked by this user',
+          data: like,
+        };
+      }
+
+      // Create new like
+      like = this.likesRepository.create({
+        post: { id: postId },
+        user: { id: userId },
+        postId,
+        userId,
+        likesCount: 1,
+      });
+
+      const savedLike = await this.likesRepository.save(like);
+      return {
+        success: true,
+        message: 'Like created successfully',
+        data: savedLike,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: 'Failed to create like',
+        error: error.message,
+        statusCode: 500,
+      };
     }
-    return this.likesRepository.save(like);
   }
 }

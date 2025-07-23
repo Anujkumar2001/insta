@@ -33,7 +33,7 @@ export class Post {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @ManyToOne(() => User, (user) => user.posts, { cascade: true })
+  @ManyToOne(() => User, (user) => user.posts)
   user: User;
 
   @OneToMany(() => Like, (like) => like.post)
