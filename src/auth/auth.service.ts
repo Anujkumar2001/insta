@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
+
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/users/users.service';
@@ -28,22 +28,10 @@ export class AuthService {
   async signup(email: string, password: string, name: string): Promise<any> {
     try {
       const user = await this.userService.createUser(email, password, name);
-
-      // Handle known error response from createUser
       if (user?.statusCode && user.statusCode !== 201) {
-        return {
-          success: false,
-          message: user.message,
-          statusCode: user.statusCode,
-        };
+        return user;
       }
-
-      return {
-        success: true,
-        message: 'User created successfully',
-        data: user,
-        statusCode: 201,
-      };
+      return 'User created successfully';
     } catch (error) {
       console.error(error);
       throw new UnauthorizedException('Internal server error');
