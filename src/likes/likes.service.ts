@@ -23,7 +23,6 @@ export class LikesService implements ILikesService {
     userId: number,
   ): Promise<CreateLikeResponseDto> {
     try {
-      // Check if the user exists
       const userExists = await this.checkUserExists(userId);
       if (!userExists) {
         return CreateLikeResponseDto.userNotFound(userId);

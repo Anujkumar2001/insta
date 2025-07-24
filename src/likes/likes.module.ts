@@ -1,20 +1,20 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import config from 'src/core/config';
 import { PostModule } from 'src/post/post.module';
 import { UsersModule } from 'src/users/users.module';
 import { Like } from './entities/likes.entity';
-import { LikesController } from './likes.controller';
 import { LikesService } from './likes.service';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Like]),
-    PostModule,
+    forwardRef(() => PostModule),
     UsersModule,
     JwtModule.register({ secret: config.db.auth.JWT_SECRET }),
   ],
-  controllers: [LikesController],
+  controllers: [],
   providers: [LikesService],
+  exports: [LikesService],
 })
 export class LikesModule {}
