@@ -1,7 +1,8 @@
 import { Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
 import { AuthGuard } from 'src/guards/auth.guard';
-import { LikesService } from './likes.service';
 import { RequestWithUser } from 'src/post/types';
+import { CreateLikeResponseDto, GetLikesResponseDto } from './dto/response.dto';
+import { LikesService } from './likes.service';
 
 @Controller('likes')
 export class LikesController {
@@ -12,7 +13,7 @@ export class LikesController {
   async createLike(
     @Param('postId') postId: number,
     @Req() req: RequestWithUser,
-  ) {
+  ): Promise<CreateLikeResponseDto> {
     const userId = req.user.sub;
     return this.likesService.createLike(postId, userId);
   }
@@ -22,8 +23,8 @@ export class LikesController {
   async getAllLikes(
     @Param('postId') postId: number,
     @Req() req: RequestWithUser,
-  ) {
+  ): Promise<GetLikesResponseDto> {
     const userId = req.user.sub;
-    return this.likesService.allLikes(postId, userId);
+    return this.likesService.getAllLikes(postId, userId);
   }
 }

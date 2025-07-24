@@ -1,79 +1,112 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PostService } from 'src/post/post.service';
 import { UsersService } from 'src/users/users.service';
 import { Repository } from 'typeorm';
+import { CreateLikeResponseDto, GetLikesResponseDto } from './dto/response.dto';
 import { Like } from './entities/likes.entity';
+import { ILikesService } from './interfaces/likes.interface';
 
 @Injectable()
-export class LikesService {
+export class LikesService implements ILikesService {
+  private readonly logger = new Logger(LikesService.name);
+
   constructor(
     @InjectRepository(Like)
     private readonly likesRepository: Repository<Like>,
-    private postService: PostService,
-    private usersService: UsersService,
+    private readonly postService: PostService,
+    private readonly usersService: UsersService,
   ) {}
-  async createLike(postId: number, userId: number) {
+
+  async createLike(
+    postId: number,
+    userId: number,
+  ): Promise<CreateLikeResponseDto> {
     try {
-      // First, check if the user exists
-      const user = await this.usersService.findUserById(userId);
-      if (!user) {
-        return {
-          message: `User with ID ${userId} does not exist`,
-        };
+      // Check if the user exists
+      const userExists = await this.checkUserExists(userId);
+      if (!userExists) {
+        return CreateLikeResponseDto.userNotFound(userId);
       }
 
-      // Then check if the post exists
-      const post = await this.postService.getPostById(postId);
-      if (!post) {
-        return {
-          message: `Post with ID ${postId} does not exist`,
-        };
+      // Check if the post exists
+      const postExists = await this.checkPostExists(postId);
+      if (!postExists) {
+        return CreateLikeResponseDto.postNotFound(postId);
       }
 
-      // Check if the like already exists
-      let like = await this.likesRepository.findOne({
-        where: {
-          postId,
-          userId,
-        },
-      });
-
-      if (like) {
-        return {
-          message: 'Post already liked by this user',
-        };
+      const existingLike = await this.findExistingLike(userId, postId);
+      if (existingLike) {
+        return CreateLikeResponseDto.alreadyLiked();
       }
-
-      // Create new like
-      like = this.likesRepository.create({
-        post: { id: postId },
-        user: { id: userId },
-        postId,
-        userId,
-      });
-
-      const savedLike = await this.likesRepository.save(like);
-      return {
-        message: 'Like created successfully',
-      };
+      const savedLike = await this.saveNewLike(userId, postId);
+      return CreateLikeResponseDto.fromEntity(savedLike);
     } catch (error) {
-      return {
-        success: false,
-        message: 'Failed to create like',
-        error: error.message,
-        statusCode: 500,
-      };
+      this.logger.error(
+        `Failed to create like: ${(error as Error).message}`,
+        (error as Error).stack,
+      );
+      throw error;
     }
   }
 
-  async allLikes(postId: number, userId: number) {
-    const likesCount = await this.likesRepository.count({
+  private async checkUserExists(userId: number): Promise<boolean> {
+    const user = await this.usersService.findUserById(userId);
+    return !!user;
+  }
+
+  private async checkPostExists(postId: number): Promise<boolean> {
+    const post = await this.postService.getPostById(postId);
+    return !!post;
+  }
+
+  private async findExistingLike(
+    userId: number,
+    postId: number,
+  ): Promise<Like | null> {
+    return this.likesRepository.findOne({
       where: {
         postId,
+        userId,
       },
     });
-    return { totalLikes: likesCount };
+  }
+
+  private async saveNewLike(userId: number, postId: number): Promise<Like> {
+    const like = this.likesRepository.create({
+      post: { id: postId },
+      user: { id: userId },
+      postId,
+      userId,
+    });
+
+    return this.likesRepository.save(like);
+  }
+
+  async getAllLikes(
+    postId: number,
+    userId?: number,
+  ): Promise<GetLikesResponseDto> {
+    try {
+      const likesCount = await this.likesRepository.count({
+        where: {
+          postId,
+        },
+      });
+
+      let userHasLiked: boolean | undefined;
+      if (userId) {
+        const userLike = await this.findExistingLike(userId, postId);
+        userHasLiked = !!userLike;
+      }
+
+      return GetLikesResponseDto.fromCount(likesCount, userHasLiked);
+    } catch (error) {
+      this.logger.error(
+        `Failed to get likes: ${(error as Error).message}`,
+        (error as Error).stack,
+      );
+      throw error;
+    }
   }
 }
