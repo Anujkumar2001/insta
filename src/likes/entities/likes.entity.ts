@@ -2,6 +2,7 @@ import { Post } from 'src/post/entities/post.entity';
 import { User } from 'src/users/entities/user.entity';
 import {
   Column,
+  CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -14,9 +15,6 @@ export class Like {
   id: number;
 
   @Column({ type: 'int', default: 0 })
-  likesCount: number;
-
-  @Column({ type: 'int', default: 0 })
   userId: number;
 
   @Column({ type: 'int', default: 0 })
@@ -25,6 +23,12 @@ export class Like {
   @ManyToOne(() => User, (user) => user.likes)
   @JoinColumn({ name: 'userId' })
   user: User;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @CreateDateColumn()
+  updatedAt: Date;
 
   @ManyToOne(() => Post, (post) => post.likes)
   @JoinColumn({ name: 'postId' })

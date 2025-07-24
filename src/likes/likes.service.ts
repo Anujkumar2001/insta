@@ -20,9 +20,7 @@ export class LikesService {
       const user = await this.usersService.findUserById(userId);
       if (!user) {
         return {
-          success: false,
           message: `User with ID ${userId} does not exist`,
-          statusCode: 404,
         };
       }
 
@@ -30,9 +28,7 @@ export class LikesService {
       const post = await this.postService.getPostById(postId);
       if (!post) {
         return {
-          success: false,
           message: `Post with ID ${postId} does not exist`,
-          statusCode: 404,
         };
       }
 
@@ -46,9 +42,7 @@ export class LikesService {
 
       if (like) {
         return {
-          success: true,
           message: 'Post already liked by this user',
-          data: like,
         };
       }
 
@@ -58,14 +52,11 @@ export class LikesService {
         user: { id: userId },
         postId,
         userId,
-        likesCount: 1,
       });
 
       const savedLike = await this.likesRepository.save(like);
       return {
-        success: true,
         message: 'Like created successfully',
-        data: savedLike,
       };
     } catch (error) {
       return {
@@ -75,5 +66,14 @@ export class LikesService {
         statusCode: 500,
       };
     }
+  }
+
+  async allLikes(postId: number, userId: number) {
+    const likesCount = await this.likesRepository.count({
+      where: {
+        postId,
+      },
+    });
+    return { totalLikes: likesCount };
   }
 }
