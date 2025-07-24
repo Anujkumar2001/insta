@@ -10,6 +10,8 @@ import { LikesModule } from './likes/likes.module';
 import { Post } from './post/entities/post.entity';
 import { PostModule } from './post/post.module';
 import { User } from './users/entities/user.entity';
+import { CommentsModule } from './comments/comments.module';
+import { Comment } from './comments/entities/comment.entity';
 
 @Module({
   imports: [
@@ -21,13 +23,14 @@ import { User } from './users/entities/user.entity';
       username: config.db.auth.DB_USER_NAME,
       password: config.db.auth.DB_PASSWORD,
       database: config.db.auth.DB_NAME,
-      entities: [User, Post, Like],
+      entities: [User, Post, Like, Comment],
       synchronize: true,
     }),
     AuthModule,
     PostModule,
     JwtModule.register({ secret: config.db.auth.JWT_SECRET }),
     LikesModule,
+    CommentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
