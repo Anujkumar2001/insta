@@ -7,10 +7,10 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { CommentsService } from './comments.service';
 import { AuthGuard } from 'src/guards/auth.guard';
-import { CommentDto } from './dto/comment.dto';
 import { RequestWithUser } from 'src/post/types';
+import { CommentsService } from './comments.service';
+import { CommentDto } from './dto/comment.dto';
 
 @Controller('comment')
 export class CommentsController {
@@ -32,8 +32,7 @@ export class CommentsController {
 
   @Get(':postId')
   @UseGuards(AuthGuard)
-  getComment(@Param('postId') postId: number, @Req() req: RequestWithUser) {
-    const userId = req.user.sub;
-    return this.commentService.getComments(userId, postId);
+  getComment(@Param('postId') postId: number) {
+    return this.commentService.getComments(postId);
   }
 }
