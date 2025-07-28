@@ -6,10 +6,9 @@ import {
   GetCommentsResponseDto,
 } from './dto/response.dto';
 import { Comment } from './entities/comment.entity';
-import { ICommentsService } from './interfaces/comments.interface';
 
 @Injectable()
-export class CommentsService implements ICommentsService {
+export class CommentsService {
   private readonly logger = new Logger(CommentsService.name);
 
   constructor(

@@ -4,14 +4,16 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
+import { CommentsModule } from './comments/comments.module';
+import { Comment } from './comments/entities/comment.entity';
 import config from './core/config';
+import { FollowsModule } from './follows/follows.module';
 import { Like } from './likes/entities/likes.entity';
 import { LikesModule } from './likes/likes.module';
 import { Post } from './post/entities/post.entity';
 import { PostModule } from './post/post.module';
 import { User } from './users/entities/user.entity';
-import { CommentsModule } from './comments/comments.module';
-import { Comment } from './comments/entities/comment.entity';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -31,6 +33,8 @@ import { Comment } from './comments/entities/comment.entity';
     JwtModule.register({ secret: config.db.auth.JWT_SECRET }),
     LikesModule,
     CommentsModule,
+    FollowsModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -5,10 +5,9 @@ import { UsersService } from 'src/users/users.service';
 import { Repository } from 'typeorm';
 import { CreateLikeResponseDto, GetLikesResponseDto } from './dto/response.dto';
 import { Like } from './entities/likes.entity';
-import { ILikesService } from './interfaces/likes.interface';
 
 @Injectable()
-export class LikesService implements ILikesService {
+export class LikesService {
   private readonly logger = new Logger(LikesService.name);
 
   constructor(
