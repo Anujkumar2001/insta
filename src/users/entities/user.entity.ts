@@ -1,4 +1,5 @@
 import { Comment } from 'src/comments/entities/comment.entity';
+import { Follower } from 'src/followers/entity/follower.entity';
 import { Like } from 'src/likes/entities/likes.entity';
 import { Post } from 'src/post/entities/post.entity';
 import {
@@ -38,4 +39,10 @@ export class User {
 
   @OneToMany(() => Comment, (comment) => comment.user)
   comments: Comment[];
+
+  @OneToMany(() => Follower, (f) => f.follower)
+  following: Follower[];
+
+  @OneToMany(() => Follower, (f) => f.following)
+  followers: Follower[];
 }

@@ -7,7 +7,8 @@ import { AuthModule } from './auth/auth.module';
 import { CommentsModule } from './comments/comments.module';
 import { Comment } from './comments/entities/comment.entity';
 import config from './core/config';
-import { FollowsModule } from './follows/follows.module';
+import { Follower } from './followers/entity/follower.entity';
+import { FollowersModule } from './followers/followers.module';
 import { Like } from './likes/entities/likes.entity';
 import { LikesModule } from './likes/likes.module';
 import { Post } from './post/entities/post.entity';
@@ -25,7 +26,7 @@ import { UsersModule } from './users/users.module';
       username: config.db.auth.DB_USER_NAME,
       password: config.db.auth.DB_PASSWORD,
       database: config.db.auth.DB_NAME,
-      entities: [User, Post, Like, Comment],
+      entities: [User, Post, Like, Comment, Follower],
       synchronize: true,
     }),
     AuthModule,
@@ -33,7 +34,7 @@ import { UsersModule } from './users/users.module';
     JwtModule.register({ secret: config.db.auth.JWT_SECRET }),
     LikesModule,
     CommentsModule,
-    FollowsModule,
+    FollowersModule,
     UsersModule,
   ],
   controllers: [AppController],

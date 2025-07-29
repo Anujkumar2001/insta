@@ -1,8 +1,7 @@
-import { forwardRef, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import config from 'src/core/config';
-import { FollowsModule } from 'src/follows/follows.module';
 import { User } from './entities/user.entity';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
@@ -10,7 +9,6 @@ import { UsersService } from './users.service';
   imports: [
     TypeOrmModule.forFeature([User]),
     JwtModule.register({ secret: config.db.auth.JWT_SECRET }),
-    forwardRef(() => FollowsModule),
   ],
   providers: [UsersService],
   exports: [UsersService],

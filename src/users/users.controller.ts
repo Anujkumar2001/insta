@@ -1,19 +1,15 @@
-import { Controller, Param, Post, Req, UseGuards } from '@nestjs/common';
-import { FollowsService } from 'src/follows/follows.service';
+import { Controller, Get, Req, UseGuards } from '@nestjs/common';
 import { AuthGuard } from 'src/guards/auth.guard';
+import { RequestWithUser } from 'src/post/types';
+import { UsersService } from './users.service';
 
 @Controller('user')
 @UseGuards(AuthGuard)
 export class UsersController {
-  constructor(private readonly followService: FollowsService) {}
+  constructor(private readonly userService: UsersService) {}
 
-  @Post('/:followerId/follow')
-  async createFollow(
-    @Param('followerId') followerId: number,
-    @Param('followingId') followingId: number,
-    @Req() req: any,
-  ) {
-    console.log(req.user.sub, 'iddd');
-    return this.followService.createFollow(followerId, followingId);
+  @Get('profile')
+  async getProfile(@Req() req: RequestWithUser) {
+    return this.userService.findUserById(req.user.sub);
   }
 }

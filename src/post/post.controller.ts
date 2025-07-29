@@ -38,7 +38,7 @@ export class PostController {
     const userId = req.user.sub;
     return this.postService.getAllPost(userId);
   }
-  @Post('like/:postId')
+  @Post(':postId/like')
   async createLike(
     @Param('postId') postId: number,
     @Req() req: RequestWithUser,
@@ -46,7 +46,7 @@ export class PostController {
     const userId = req.user.sub;
     return this.likesService.createLike(postId, userId);
   }
-  @Get('like/:postId')
+  @Get(':postId/like')
   async getAllLikes(
     @Param('postId') postId: number,
     @Req() req: RequestWithUser,
@@ -55,7 +55,7 @@ export class PostController {
     return this.likesService.getAllLikes(postId, userId);
   }
 
-  @Post('comment/:postId')
+  @Post(':postId/comment')
   createComment(
     @Body() commentDto: CommentDto,
     @Param('postId') postId: number,
@@ -69,7 +69,7 @@ export class PostController {
     );
   }
 
-  @Get('comment/:postId')
+  @Get(':postId/comment')
   getComment(@Param('postId') postId: number) {
     return this.commentService.getComments(postId);
   }
