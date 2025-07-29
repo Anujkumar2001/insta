@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-redundant-type-constituents */
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -42,8 +41,12 @@ export class UsersService {
     }
   }
 
-  async findUserById(userId): Promise<User | null> {
-    const user = await this.userRepository.findOneBy(userId);
+  async findUserById(userId: number): Promise<User | null> {
+    const user = await this.userRepository
+      .createQueryBuilder('user')
+      .select(['user.id', 'user.email', 'user.name'])
+      .where('user.id = :userId', { userId })
+      .getOne();
     return user;
   }
 }

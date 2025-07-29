@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
+
 import {
   BadRequestException,
   Controller,
@@ -10,14 +10,11 @@ import {
   ParseIntPipe,
   Post,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
-import {
-  ApiBearerAuth,
-  ApiOperation,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
+import { RequestWithUser } from 'src/post/types';
 import { GetUser } from '../auth/decorators/get-user.decorator';
 import { AuthGuard } from '../guards/auth.guard';
 import { User } from '../users/entities/user.entity';
@@ -26,28 +23,19 @@ import { PaginationQueryDto } from './dto/pagination-query.dto';
 import { FollowersService } from './followers.service';
 
 @ApiTags('followers')
-@ApiBearerAuth()
 @Controller('followers')
 @UseGuards(AuthGuard)
 export class FollowersController {
   constructor(private readonly followersService: FollowersService) {}
 
   @Post(':targetUserId')
-  @ApiOperation({ summary: 'Follow a user' })
-  @ApiResponse({
-    status: 201,
-    description: 'Successfully followed user',
-    type: FollowResponseDto,
-  })
-  @ApiResponse({ status: 400, description: 'Bad request' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 404, description: 'User not found' })
   async followUser(
-    @GetUser() user: User,
+    @Req() req: RequestWithUser,
     @Param('targetUserId', ParseIntPipe) targetUserId: number,
   ): Promise<FollowResponseDto> {
+    console.log(req.user, 'user');
     try {
-      return await this.followersService.followUser(user.id, {
+      return await this.followersService.followUser(req.user.sub, {
         userId: targetUserId,
       });
     } catch (error) {
@@ -59,11 +47,6 @@ export class FollowersController {
   }
 
   @Delete(':targetUserId')
-  @ApiOperation({ summary: 'Unfollow a user' })
-  @ApiResponse({ status: 200, description: 'Successfully unfollowed user' })
-  @ApiResponse({ status: 400, description: 'Bad request' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 404, description: 'Follow relationship not found' })
   async unfollowUser(
     @GetUser() user: User,
     @Param('targetUserId', ParseIntPipe) targetUserId: number,
@@ -81,44 +64,22 @@ export class FollowersController {
   }
 
   @Get('me')
-  @ApiOperation({ summary: 'Get my followers' })
-  @ApiResponse({
-    status: 200,
-    description: 'Returns list of followers',
-    type: [User],
-  })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
   getMyFollowers(
-    @GetUser() user: User,
+    @Req() req: RequestWithUser,
     @Query() pagination: PaginationQueryDto,
   ): Promise<User[]> {
-    return this.followersService.getFollowers(user.id, pagination);
+    return this.followersService.getFollowers(req.user.sub, pagination);
   }
 
   @Get('me/following')
-  @ApiOperation({ summary: 'Get users I am following' })
-  @ApiResponse({
-    status: 200,
-    description: 'Returns list of followed users',
-    type: [User],
-  })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
   getMyFollowing(
-    @GetUser() user: User,
+    @Req() req: RequestWithUser,
     @Query() pagination: PaginationQueryDto,
   ): Promise<User[]> {
-    return this.followersService.getFollowing(user.id, pagination);
+    return this.followersService.getFollowing(req.user.sub, pagination);
   }
 
   @Get(':userId')
-  @ApiOperation({ summary: "Get a user's followers" })
-  @ApiResponse({
-    status: 200,
-    description: "Returns list of user's followers",
-    type: [User],
-  })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 404, description: 'User not found' })
   getUserFollowers(
     @Param('userId', ParseIntPipe) userId: number,
     @Query() pagination: PaginationQueryDto,
@@ -127,14 +88,6 @@ export class FollowersController {
   }
 
   @Get(':userId/following')
-  @ApiOperation({ summary: 'Get users that a user is following' })
-  @ApiResponse({
-    status: 200,
-    description: 'Returns list of followed users',
-    type: [User],
-  })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 404, description: 'User not found' })
   getUserFollowing(
     @Param('userId', ParseIntPipe) userId: number,
     @Query() pagination: PaginationQueryDto,
@@ -143,13 +96,6 @@ export class FollowersController {
   }
 
   @Get(':userId/is-following/:targetId')
-  @ApiOperation({ summary: 'Check if a user is following another user' })
-  @ApiResponse({
-    status: 200,
-    description: 'Returns follow status',
-    type: Boolean,
-  })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
   async isFollowing(
     @Param('userId', ParseIntPipe) userId: number,
     @Param('targetId', ParseIntPipe) targetId: number,
