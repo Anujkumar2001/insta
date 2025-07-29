@@ -1,10 +1,8 @@
 import {
   HttpException,
   HttpStatus,
-  Inject,
   Injectable,
   NotFoundException,
-  forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -21,7 +19,6 @@ export class FollowersService {
   constructor(
     @InjectRepository(Follower)
     private readonly followerRepository: Repository<Follower>,
-    @Inject(forwardRef(() => UsersService))
     private readonly usersService: UsersService,
   ) {}
 
@@ -65,11 +62,10 @@ export class FollowersService {
       throw new NotFoundException('Follower user not found');
     }
 
-    const follow = new Follower();
-    follow.follower = follower;
-    follow.following = targetUser;
-
-    const savedFollow = await this.followerRepository.save(follow);
+    const savedFollow = await this.followerRepository.save({
+      follower,
+      following: targetUser,
+    });
 
     return {
       followerId: savedFollow.follower.id,

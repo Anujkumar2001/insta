@@ -33,7 +33,6 @@ export class FollowersController {
     @Req() req: RequestWithUser,
     @Param('targetUserId', ParseIntPipe) targetUserId: number,
   ): Promise<FollowResponseDto> {
-    console.log(req.user, 'user');
     try {
       return await this.followersService.followUser(req.user.sub, {
         userId: targetUserId,

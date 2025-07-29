@@ -11,7 +11,6 @@ import { FollowersService } from './followers.service';
   imports: [
     TypeOrmModule.forFeature([Follower]),
     JwtModule.register({ secret: config.db.auth.JWT_SECRET }),
-
     forwardRef(() => UsersModule),
   ],
   controllers: [FollowersController],
