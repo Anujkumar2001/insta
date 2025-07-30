@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from '../users/entities/user.entity';
+import { UserProfileDto } from '../users/dto/user-profile.dto';
 import { UsersService } from '../users/users.service';
 import { FollowResponseDto } from './dto/follow-response.dto';
 import { FollowUserDto } from './dto/follow-user.dto';
@@ -91,7 +91,7 @@ export class FollowersService {
   async getFollowers(
     userId: number,
     pagination: PaginationQueryDto,
-  ): Promise<User[]> {
+  ): Promise<UserProfileDto[]> {
     const { limit = 10, offset = 0 } = pagination;
 
     const followers = await this.followerRepository.find({
@@ -102,13 +102,13 @@ export class FollowersService {
       order: { createdAt: 'DESC' },
     });
 
-    return followers.map((follow) => follow.follower);
+    return followers.map((follow) => new UserProfileDto(follow.follower));
   }
 
   async getFollowing(
     userId: number,
     pagination: PaginationQueryDto,
-  ): Promise<User[]> {
+  ): Promise<UserProfileDto[]> {
     const { limit = 10, offset = 0 } = pagination;
 
     const following = await this.followerRepository.find({
@@ -119,7 +119,7 @@ export class FollowersService {
       order: { createdAt: 'DESC' },
     });
 
-    return following.map((follow) => follow.following);
+    return following.map((follow) => new UserProfileDto(follow.following));
   }
 
   async isFollowing(userId: number, targetUserId: number): Promise<boolean> {

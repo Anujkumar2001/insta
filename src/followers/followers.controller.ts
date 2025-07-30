@@ -17,6 +17,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { RequestWithUser } from 'src/post/types';
 import { GetUser } from '../auth/decorators/get-user.decorator';
 import { AuthGuard } from '../guards/auth.guard';
+import { UserProfileDto } from '../users/dto/user-profile.dto';
 import { User } from '../users/entities/user.entity';
 import { FollowResponseDto } from './dto/follow-response.dto';
 import { PaginationQueryDto } from './dto/pagination-query.dto';
@@ -63,35 +64,35 @@ export class FollowersController {
   }
 
   @Get('me')
-  getMyFollowers(
+  async getMyFollowers(
     @Req() req: RequestWithUser,
     @Query() pagination: PaginationQueryDto,
-  ): Promise<User[]> {
-    return this.followersService.getFollowers(req.user.sub, pagination);
+  ): Promise<UserProfileDto[]> {
+    return await this.followersService.getFollowers(req.user.sub, pagination);
   }
 
   @Get('me/following')
-  getMyFollowing(
+  async getMyFollowing(
     @Req() req: RequestWithUser,
     @Query() pagination: PaginationQueryDto,
-  ): Promise<User[]> {
-    return this.followersService.getFollowing(req.user.sub, pagination);
+  ): Promise<UserProfileDto[]> {
+    return await this.followersService.getFollowing(req.user.sub, pagination);
   }
 
   @Get(':userId')
-  getUserFollowers(
+  async getUserFollowers(
     @Param('userId', ParseIntPipe) userId: number,
     @Query() pagination: PaginationQueryDto,
-  ): Promise<User[]> {
-    return this.followersService.getFollowers(userId, pagination);
+  ): Promise<UserProfileDto[]> {
+    return await this.followersService.getFollowers(userId, pagination);
   }
 
   @Get(':userId/following')
-  getUserFollowing(
+  async getUserFollowing(
     @Param('userId', ParseIntPipe) userId: number,
     @Query() pagination: PaginationQueryDto,
-  ): Promise<User[]> {
-    return this.followersService.getFollowing(userId, pagination);
+  ): Promise<UserProfileDto[]> {
+    return await this.followersService.getFollowing(userId, pagination);
   }
 
   @Get(':userId/is-following/:targetId')

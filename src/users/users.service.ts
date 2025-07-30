@@ -2,6 +2,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { UserProfileDto } from './dto/user-profile.dto';
 import { User } from './entities/user.entity';
 
 @Injectable()
@@ -41,7 +42,7 @@ export class UsersService {
     }
   }
 
-  async findUserById(userId: number): Promise<User | null> {
+  async findUserById(userId: number): Promise<UserProfileDto | null> {
     const user = await this.userRepository
       .createQueryBuilder('user')
       .select(['user.id', 'user.email', 'user.name'])

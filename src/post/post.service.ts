@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreatePostDto } from './dto/create-post.dto';
+import { PostResponseDto } from './dto/post-response.dto';
 import { PostsPaginationDto } from './dto/posts-pagination.dto';
 import { Post } from './entities/post.entity';
 
@@ -15,10 +16,11 @@ export class PostService {
 
   async createPost(
     createPostDto: CreatePostDto & { userId: number },
-  ): Promise<Post> {
+  ): Promise<PostResponseDto> {
     try {
       const post = this.postRepository.create(createPostDto);
-      return await this.postRepository.save(post);
+      const savedPost = await this.postRepository.save(post);
+      return new PostResponseDto(savedPost);
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
@@ -29,19 +31,21 @@ export class PostService {
   async getAllPosts(
     userId: number,
     pagination: PostsPaginationDto,
-  ): Promise<Post[]> {
+  ): Promise<PostResponseDto[]> {
     const { page = 1, limit = 10 } = pagination;
     const skip = (page - 1) * limit;
 
-    return this.postRepository.find({
+    const posts = await this.postRepository.find({
       where: { userId },
       take: limit,
       skip,
       order: { createdAt: 'DESC' },
     });
+
+    return posts.map((post) => new PostResponseDto(post));
   }
 
-  async getPostById(postId: number): Promise<Post> {
+  async getPostById(postId: number): Promise<PostResponseDto> {
     const post = await this.postRepository.findOne({
       where: { id: postId },
       relations: ['user'],
@@ -51,6 +55,6 @@ export class PostService {
       throw new NotFoundException(`Post with ID ${postId} not found`);
     }
 
-    return post;
+    return new PostResponseDto(post);
   }
 }
