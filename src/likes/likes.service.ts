@@ -9,6 +9,7 @@ import { Like } from './entities/likes.entity';
 @Injectable()
 export class LikesService {
   private readonly logger = new Logger(LikesService.name);
+  getLikesForPost: any;
 
   constructor(
     @InjectRepository(Like)

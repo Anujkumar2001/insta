@@ -1,8 +1,9 @@
 // sign-in.dto.ts
-import { IsString } from 'class-validator';
+import { IsEmail, IsString } from 'class-validator';
 
 export class SignInDto {
   @IsString()
+  @IsEmail()
   email: string;
 
   @IsString()

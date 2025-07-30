@@ -1,7 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UsersService } from 'src/users/users.service';
 import { Repository } from 'typeorm';
+import { CreatePostDto } from './dto/create-post.dto';
+import { PostsPaginationDto } from './dto/posts-pagination.dto';
 import { Post } from './entities/post.entity';
 
 @Injectable()
@@ -10,40 +11,46 @@ export class PostService {
   constructor(
     @InjectRepository(Post)
     private readonly postRepository: Repository<Post>,
-    private userService: UsersService,
   ) {}
 
   async createPost(
-    caption: string,
-    imgUrl: string,
-    location: string,
-    userId: number,
-  ) {
-    const user = await this.userService.findUserById(userId);
-    if (user) {
-      const post = new Post();
-      post.caption = caption;
-      post.imgUrl = imgUrl;
-      post.location = location;
-      post.userId = userId;
-      try {
-        const savedPost = await this.postRepository.save(post);
-        return savedPost;
-      } catch (error) {
-        console.error('Error creating post:', error);
-        throw error;
-      }
-    } else {
-      throw new NotFoundException('User not found');
+    createPostDto: CreatePostDto & { userId: number },
+  ): Promise<Post> {
+    try {
+      const post = this.postRepository.create(createPostDto);
+      return await this.postRepository.save(post);
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      throw new Error(`Failed to create post: ${errorMessage}`);
     }
   }
-  async getAllPost(userId: number) {
-    const allPost = this.postRepository.find({ where: { userId } });
-    return allPost;
+
+  async getAllPosts(
+    userId: number,
+    pagination: PostsPaginationDto,
+  ): Promise<Post[]> {
+    const { page = 1, limit = 10 } = pagination;
+    const skip = (page - 1) * limit;
+
+    return this.postRepository.find({
+      where: { userId },
+      take: limit,
+      skip,
+      order: { createdAt: 'DESC' },
+    });
   }
 
-  async getPostById(postId: number) {
-    const post = this.postRepository.findOne({ where: { id: postId } });
+  async getPostById(postId: number): Promise<Post> {
+    const post = await this.postRepository.findOne({
+      where: { id: postId },
+      relations: ['user'],
+    });
+
+    if (!post) {
+      throw new NotFoundException(`Post with ID ${postId} not found`);
+    }
+
     return post;
   }
 }
