@@ -17,9 +17,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { RequestWithUser } from 'src/post/types';
 import { GetUser } from '../auth/decorators/get-user.decorator';
 import { AuthGuard } from '../guards/auth.guard';
-import { UserProfileDto } from '../users/dto/user-profile.dto';
 import { User } from '../users/entities/user.entity';
-import { FollowResponseDto } from './dto/follow-response.dto';
 import { PaginationQueryDto } from './dto/pagination-query.dto';
 import { FollowersService } from './followers.service';
 
@@ -33,9 +31,9 @@ export class FollowersController {
   async followUser(
     @Req() req: RequestWithUser,
     @Param('targetUserId', ParseIntPipe) targetUserId: number,
-  ): Promise<FollowResponseDto> {
+  ) {
     try {
-      return await this.followersService.followUser(req.user.sub, {
+      return await this.followersService.followUser(req.user.id, {
         userId: targetUserId,
       });
     } catch (error) {
@@ -50,7 +48,7 @@ export class FollowersController {
   async unfollowUser(
     @GetUser() user: User,
     @Param('targetUserId', ParseIntPipe) targetUserId: number,
-  ): Promise<void> {
+  ) {
     try {
       await this.followersService.unfollowUser(user.id, {
         userId: targetUserId,
@@ -67,23 +65,23 @@ export class FollowersController {
   async getMyFollowers(
     @Req() req: RequestWithUser,
     @Query() pagination: PaginationQueryDto,
-  ): Promise<UserProfileDto[]> {
-    return await this.followersService.getFollowers(req.user.sub, pagination);
+  ) {
+    return await this.followersService.getFollowers(req.user.id, pagination);
   }
 
   @Get('me/following')
   async getMyFollowing(
     @Req() req: RequestWithUser,
     @Query() pagination: PaginationQueryDto,
-  ): Promise<UserProfileDto[]> {
-    return await this.followersService.getFollowing(req.user.sub, pagination);
+  ) {
+    return await this.followersService.getFollowing(req.user.id, pagination);
   }
 
   @Get(':userId')
   async getUserFollowers(
     @Param('userId', ParseIntPipe) userId: number,
     @Query() pagination: PaginationQueryDto,
-  ): Promise<UserProfileDto[]> {
+  ) {
     return await this.followersService.getFollowers(userId, pagination);
   }
 
@@ -91,7 +89,7 @@ export class FollowersController {
   async getUserFollowing(
     @Param('userId', ParseIntPipe) userId: number,
     @Query() pagination: PaginationQueryDto,
-  ): Promise<UserProfileDto[]> {
+  ) {
     return await this.followersService.getFollowing(userId, pagination);
   }
 
@@ -99,7 +97,7 @@ export class FollowersController {
   async isFollowing(
     @Param('userId', ParseIntPipe) userId: number,
     @Param('targetId', ParseIntPipe) targetId: number,
-  ): Promise<{ isFollowing: boolean }> {
+  ) {
     const isFollowing = await this.followersService.isFollowing(
       userId,
       targetId,
