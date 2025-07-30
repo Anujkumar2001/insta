@@ -7,7 +7,7 @@ export interface CreatePostDto {
 
 export interface RequestWithUser extends Request {
   user: {
-    sub: number;
+    id: number;
     email: string;
     [key: string]: any;
   };

@@ -10,6 +10,6 @@ export class UsersController {
 
   @Get('profile')
   async getProfile(@Req() req: RequestWithUser) {
-    return this.userService.findUserById(req.user.sub);
+    return this.userService.findUserById(req.user.id);
   }
 }

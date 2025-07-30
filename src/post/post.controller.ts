@@ -34,7 +34,7 @@ export class PostController {
     @Body() createPostDto: CreatePostDto,
     @Req() req: RequestWithUser,
   ) {
-    const userId = req.user.sub;
+    const userId = req.user.id;
     const post = await this.postService.createPost({
       ...createPostDto,
       userId,
@@ -47,7 +47,7 @@ export class PostController {
     @Req() req: RequestWithUser,
     @Query() pagination: PostsPaginationDto,
   ) {
-    const userId = req.user.sub;
+    const userId = req.user.id;
     const posts = await this.postService.getAllPosts(userId, pagination);
     return posts;
   }
@@ -57,7 +57,7 @@ export class PostController {
     @Param('postId', ParseIntPipe) postId: number,
     @Req() req: RequestWithUser,
   ) {
-    const userId = req.user.sub;
+    const userId = req.user.id;
     await this.likesService.createLike(postId, userId);
   }
 
@@ -65,8 +65,8 @@ export class PostController {
   async getPostLikes(
     @Param('postId', ParseIntPipe) postId: number,
     @Req() req: RequestWithUser,
-  ) {
-    const userId = req.user.sub;
+  ): Promise<any> {
+    const userId = req.user.id;
     return this.likesService.getAllLikes(postId, userId);
   }
 
@@ -76,7 +76,7 @@ export class PostController {
     @Param('postId') postId: number,
     @Req() req: RequestWithUser,
   ) {
-    const userId = req.user.sub;
+    const userId = req.user.id;
     return this.commentService.createComment(
       userId,
       postId,
@@ -85,7 +85,9 @@ export class PostController {
   }
 
   @Get(':postId/comments')
-  async getComments(@Param('postId', ParseIntPipe) postId: number) {
+  async getComments(
+    @Param('postId', ParseIntPipe) postId: number,
+  ): Promise<any> {
     return this.commentService.getComments(postId);
   }
 }
