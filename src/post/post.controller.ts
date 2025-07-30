@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import {
   Body,
   Controller,
@@ -66,9 +65,9 @@ export class PostController {
   async getPostLikes(
     @Param('postId', ParseIntPipe) postId: number,
     @Req() req: RequestWithUser,
-  ): Promise<any> {
+  ) {
     const userId = req.user.sub;
-    return await this.likesService.getLikesForPost(postId, userId);
+    return this.likesService.getAllLikes(postId, userId);
   }
 
   @Post(':postId/comment')
@@ -86,9 +85,7 @@ export class PostController {
   }
 
   @Get(':postId/comments')
-  async getComments(
-    @Param('postId', ParseIntPipe) postId: number,
-  ): Promise<any> {
-    return await this.commentService.getComments(postId);
+  async getComments(@Param('postId', ParseIntPipe) postId: number) {
+    return this.commentService.getComments(postId);
   }
 }

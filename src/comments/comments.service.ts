@@ -1,10 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import {
-  CreateCommentResponseDto,
-  GetCommentsResponseDto,
-} from './dto/response.dto';
+
 import { Comment } from './entities/comment.entity';
 
 @Injectable()
@@ -20,7 +17,7 @@ export class CommentsService {
     userId: number,
     postId: number,
     content: string,
-  ): Promise<CreateCommentResponseDto> {
+  ): Promise<any> {
     try {
       const existingComment = await this.findExistingComment(userId, postId);
 
@@ -53,17 +50,17 @@ export class CommentsService {
   private async addToExistingComment(
     existingComment: Comment,
     content: string,
-  ): Promise<CreateCommentResponseDto> {
+  ): Promise<any> {
     existingComment.comments.push(content);
     const savedComment = await this.commentRepository.save(existingComment);
-    return CreateCommentResponseDto.fromEntity(savedComment);
+    return savedComment;
   }
 
   private async createNewComment(
     userId: number,
     postId: number,
     content: string,
-  ): Promise<CreateCommentResponseDto> {
+  ): Promise<any> {
     const newComment = this.commentRepository.create({
       user: { id: userId },
       post: { id: postId },
@@ -71,10 +68,10 @@ export class CommentsService {
     });
 
     const savedComment = await this.commentRepository.save(newComment);
-    return CreateCommentResponseDto.fromEntity(savedComment);
+    return savedComment;
   }
 
-  async getComments(postId: number): Promise<GetCommentsResponseDto> {
+  async getComments(postId: number): Promise<any> {
     try {
       const comments = await this.commentRepository.find({
         where: { post: { id: postId } },
@@ -83,10 +80,10 @@ export class CommentsService {
       });
 
       if (!comments || comments.length === 0) {
-        return GetCommentsResponseDto.fromEntities([]);
+        return [];
       }
 
-      return GetCommentsResponseDto.fromEntities(comments);
+      return comments;
     } catch (error) {
       this.logger.error(
         `Failed to retrieve comments: ${(error as Error).message}`,

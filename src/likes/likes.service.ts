@@ -1,15 +1,14 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PostService } from 'src/post/post.service';
 import { UsersService } from 'src/users/users.service';
 import { Repository } from 'typeorm';
-import { CreateLikeResponseDto, GetLikesResponseDto } from './dto/response.dto';
 import { Like } from './entities/likes.entity';
 
 @Injectable()
 export class LikesService {
   private readonly logger = new Logger(LikesService.name);
-  getLikesForPost: any;
 
   constructor(
     @InjectRepository(Like)
@@ -18,28 +17,25 @@ export class LikesService {
     private readonly usersService: UsersService,
   ) {}
 
-  async createLike(
-    postId: number,
-    userId: number,
-  ): Promise<CreateLikeResponseDto> {
+  async createLike(postId: number, userId: number): Promise<any> {
     try {
       const userExists = await this.checkUserExists(userId);
       if (!userExists) {
-        return CreateLikeResponseDto.userNotFound(userId);
+        return { message: 'User not found' };
       }
 
       // Check if the post exists
       const postExists = await this.checkPostExists(postId);
       if (!postExists) {
-        return CreateLikeResponseDto.postNotFound(postId);
+        return { message: 'Post not found' };
       }
 
       const existingLike = await this.findExistingLike(userId, postId);
       if (existingLike) {
-        return CreateLikeResponseDto.alreadyLiked();
+        return { message: 'Post already liked' };
       }
       const savedLike = await this.saveNewLike(userId, postId);
-      return CreateLikeResponseDto.fromEntity(savedLike);
+      return { message: 'Post liked successfully', data: savedLike };
     } catch (error) {
       this.logger.error(
         `Failed to create like: ${(error as Error).message}`,
@@ -59,10 +55,7 @@ export class LikesService {
     return !!post;
   }
 
-  private async findExistingLike(
-    userId: number,
-    postId: number,
-  ): Promise<Like | null> {
+  private async findExistingLike(userId: number, postId: number): Promise<any> {
     return this.likesRepository.findOne({
       where: {
         postId,
@@ -71,7 +64,7 @@ export class LikesService {
     });
   }
 
-  private async saveNewLike(userId: number, postId: number): Promise<Like> {
+  private async saveNewLike(userId: number, postId: number): Promise<any> {
     const like = this.likesRepository.create({
       post: { id: postId },
       user: { id: userId },
@@ -82,10 +75,7 @@ export class LikesService {
     return this.likesRepository.save(like);
   }
 
-  async getAllLikes(
-    postId: number,
-    userId?: number,
-  ): Promise<GetLikesResponseDto> {
+  async getAllLikes(postId: number, userId?: number): Promise<any> {
     try {
       const likesCount = await this.likesRepository.count({
         where: {
@@ -99,7 +89,7 @@ export class LikesService {
         userHasLiked = !!userLike;
       }
 
-      return GetLikesResponseDto.fromCount(likesCount, userHasLiked);
+      return { likesCount, userHasLiked };
     } catch (error) {
       this.logger.error(
         `Failed to get likes: ${(error as Error).message}`,
