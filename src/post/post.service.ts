@@ -34,7 +34,6 @@ export class PostService {
   ): Promise<PostResponseDto[]> {
     const { page = 1, limit = 10 } = pagination;
     const skip = (page - 1) * limit;
-
     const posts = await this.postRepository.find({
       where: { userId },
       take: limit,

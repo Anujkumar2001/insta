@@ -10,12 +10,11 @@ import {
   ParseIntPipe,
   Post,
   Query,
-  Req,
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { RequestWithUser } from 'src/post/types';
-import { GetUser } from '../auth/decorators/get-user.decorator';
+import { GetUser } from 'src/auth/decorators/get-user.decorator';
+import { UserDetails } from 'src/core/common/user.decorator';
 import { AuthGuard } from '../guards/auth.guard';
 import { User } from '../users/entities/user.entity';
 import { PaginationQueryDto } from './dto/pagination-query.dto';
@@ -29,11 +28,11 @@ export class FollowersController {
 
   @Post(':targetUserId')
   async followUser(
-    @Req() req: RequestWithUser,
+    @UserDetails() user: User,
     @Param('targetUserId', ParseIntPipe) targetUserId: number,
   ) {
     try {
-      return await this.followersService.followUser(req.user.id, {
+      return await this.followersService.followUser(user.id, {
         userId: targetUserId,
       });
     } catch (error) {
@@ -63,18 +62,18 @@ export class FollowersController {
 
   @Get('me')
   async getMyFollowers(
-    @Req() req: RequestWithUser,
+    @UserDetails() user: User,
     @Query() pagination: PaginationQueryDto,
   ) {
-    return await this.followersService.getFollowers(req.user.id, pagination);
+    return await this.followersService.getFollowers(user.id, pagination);
   }
 
   @Get('me/following')
   async getMyFollowing(
-    @Req() req: RequestWithUser,
+    @UserDetails() user: User,
     @Query() pagination: PaginationQueryDto,
   ) {
-    return await this.followersService.getFollowing(req.user.id, pagination);
+    return await this.followersService.getFollowing(user.id, pagination);
   }
 
   @Get(':userId')

@@ -6,18 +6,18 @@ import {
   ParseIntPipe,
   Post,
   Query,
-  Req,
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CommentsService } from 'src/comments/comments.service';
 import { CommentDto } from 'src/comments/dto/comment.dto';
+import { UserDetails } from 'src/core/common/user.decorator';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { LikesService } from 'src/likes/likes.service';
+import { User } from 'src/users/entities/user.entity';
 import { CreatePostDto } from './dto/create-post.dto';
 import { PostsPaginationDto } from './dto/posts-pagination.dto';
 import { PostService } from './post.service';
-import { RequestWithUser } from './types';
 
 @ApiTags('posts')
 @ApiBearerAuth()
@@ -32,9 +32,9 @@ export class PostController {
   @Post('upload')
   async createPost(
     @Body() createPostDto: CreatePostDto,
-    @Req() req: RequestWithUser,
+    @UserDetails() user: User,
   ) {
-    const userId = req.user.id;
+    const userId = user.id;
     const post = await this.postService.createPost({
       ...createPostDto,
       userId,
@@ -44,10 +44,10 @@ export class PostController {
 
   @Get()
   async getAllPosts(
-    @Req() req: RequestWithUser,
+    @UserDetails() user: User,
     @Query() pagination: PostsPaginationDto,
   ) {
-    const userId = req.user.id;
+    const userId = user.id;
     const posts = await this.postService.getAllPosts(userId, pagination);
     return posts;
   }
@@ -55,18 +55,18 @@ export class PostController {
   @Post(':postId/like')
   async likePost(
     @Param('postId', ParseIntPipe) postId: number,
-    @Req() req: RequestWithUser,
+    @UserDetails() user: User,
   ) {
-    const userId = req.user.id;
+    const userId = user.id;
     await this.likesService.createLike(postId, userId);
   }
 
   @Get(':postId/likes')
   async getPostLikes(
     @Param('postId', ParseIntPipe) postId: number,
-    @Req() req: RequestWithUser,
+    @UserDetails() user: User,
   ): Promise<any> {
-    const userId = req.user.id;
+    const userId = user.id;
     return this.likesService.getAllLikes(postId, userId);
   }
 
@@ -74,9 +74,9 @@ export class PostController {
   createComment(
     @Body() commentDto: CommentDto,
     @Param('postId') postId: number,
-    @Req() req: RequestWithUser,
+    @UserDetails() user: User,
   ) {
-    const userId = req.user.id;
+    const userId = user.id;
     return this.commentService.createComment(
       userId,
       postId,
