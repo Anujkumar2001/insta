@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
+import { CommentResponseDto } from './dto/comment.response.dto';
 import { Comment } from './entities/comment.entity';
 
 @Injectable()
@@ -71,19 +72,29 @@ export class CommentsService {
     return savedComment;
   }
 
-  async getComments(postId: number): Promise<any> {
+  async getComments(postId: number): Promise<CommentResponseDto[]> {
     try {
       const comments = await this.commentRepository.find({
         where: { post: { id: postId } },
-        relations: ['user', 'post'],
-        order: { id: 'DESC' },
+        relations: ['user'],
+        order: { id: 'DESC' }, // Using id for ordering as it's guaranteed to exist
       });
 
       if (!comments || comments.length === 0) {
         return [];
       }
 
-      return comments;
+      return comments.map(
+        (comment) =>
+          new CommentResponseDto({
+            ...comment,
+            user: {
+              id: comment.user.id,
+              name: comment.user.name,
+              email: comment.user.email,
+            },
+          }),
+      );
     } catch (error) {
       this.logger.error(
         `Failed to retrieve comments: ${(error as Error).message}`,
