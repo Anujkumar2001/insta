@@ -30,7 +30,6 @@ export class AuthService {
   async signup(email: string, password: string, name: string): Promise<any> {
     try {
       const passwordHash = await bcryptjs.hash(password, 10);
-      console.log(passwordHash, password);
       const user = await this.userService.createUser(email, passwordHash, name);
       if (user?.statusCode && user.statusCode !== 201) {
         return user;
