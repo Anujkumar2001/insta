@@ -4,12 +4,12 @@ import { AuthGuard } from 'src/guards/auth.guard';
 import { User } from './entities/user.entity';
 import { UsersService } from './users.service';
 
-@Controller('user')
+@Controller('users')
 @UseGuards(AuthGuard)
 export class UsersController {
   constructor(private readonly userService: UsersService) {}
 
-  @Get('profile')
+  @Get('me')
   async getProfile(@GetUser() user: User) {
     return this.userService.findUserById(user.id);
   }

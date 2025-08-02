@@ -3,6 +3,7 @@
 
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import * as bcryptjs from 'bcryptjs';
 import { UsersService } from 'src/users/users.service';
 
 @Injectable()
@@ -16,7 +17,8 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException();
     }
-    if (user?.password !== password) {
+    const isMatch = await bcryptjs.compare(password, user.password);
+    if (!isMatch) {
       throw new UnauthorizedException();
     }
     const payload = { email: email, id: user.id };
@@ -27,11 +29,15 @@ export class AuthService {
 
   async signup(email: string, password: string, name: string): Promise<any> {
     try {
-      const user = await this.userService.createUser(email, password, name);
+      const passwordHash = await bcryptjs.hash(password, 10);
+      console.log(passwordHash, password);
+      const user = await this.userService.createUser(email, passwordHash, name);
       if (user?.statusCode && user.statusCode !== 201) {
         return user;
       }
-      return 'User created successfully';
+      return {
+        data: user,
+      };
     } catch (error) {
       console.error(error);
       throw new UnauthorizedException('Internal server error');

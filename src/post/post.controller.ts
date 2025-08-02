@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
   Param,
   ParseIntPipe,
   Post,
@@ -21,7 +22,7 @@ import { PostService } from './post.service';
 
 @ApiTags('posts')
 @ApiBearerAuth()
-@Controller('post')
+@Controller('posts')
 @UseGuards(AuthGuard)
 export class PostController {
   constructor(
@@ -29,7 +30,8 @@ export class PostController {
     private readonly likesService: LikesService,
     private readonly commentService: CommentsService,
   ) {}
-  @Post('upload')
+  @Post()
+  @HttpCode(201)
   async createPost(
     @Body() createPostDto: CreatePostDto,
     @UserDetails() user: User,
@@ -52,7 +54,8 @@ export class PostController {
     return posts;
   }
 
-  @Post(':postId/like')
+  @Post(':postId/likes')
+  @HttpCode(201)
   async likePost(
     @Param('postId', ParseIntPipe) postId: number,
     @UserDetails() user: User,
@@ -70,7 +73,8 @@ export class PostController {
     return this.likesService.getAllLikes(postId, userId);
   }
 
-  @Post(':postId/comment')
+  @Post(':postId/comments')
+  @HttpCode(201)
   createComment(
     @Body() commentDto: CommentDto,
     @Param('postId') postId: number,
