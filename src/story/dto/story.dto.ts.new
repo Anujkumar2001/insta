@@ -1,0 +1,141 @@
+import { IsString, IsOptional, IsBoolean, IsUrl, IsEnum } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+
+export enum MediaType {
+  IMAGE = 'image',
+  VIDEO = 'video',
+}
+
+export class CreateStoryDto {
+  @ApiProperty({
+    description: 'Caption for the story',
+    example: 'My amazing day at the beach!',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  caption?: string;
+
+  @ApiProperty({
+    description: 'URL of the media (image/video)',
+    example: 'https://example.com/stories/abc123.jpg',
+  })
+  @IsUrl()
+  mediaUrl: string;
+
+  @ApiProperty({
+    description: 'Type of media (image or video)',
+    enum: MediaType,
+    example: MediaType.IMAGE,
+  })
+  @IsEnum(MediaType)
+  mediaType: MediaType;
+
+  @ApiProperty({
+    description: 'Whether the story should be archived',
+    example: false,
+    required: false,
+    default: false,
+  })
+  @IsBoolean()
+  @IsOptional()
+  isArchived?: boolean;
+}
+
+export class UpdateStoryDto {
+  @ApiProperty({
+    description: 'New caption for the story',
+    example: 'Updated caption!',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  caption?: string;
+
+  @ApiProperty({
+    description: 'New URL of the media',
+    example: 'https://example.com/stories/updated123.jpg',
+    required: false,
+  })
+  @IsUrl()
+  @IsOptional()
+  mediaUrl?: string;
+
+  @ApiProperty({
+    description: 'New media type',
+    enum: MediaType,
+    example: MediaType.VIDEO,
+    required: false,
+  })
+  @IsEnum(MediaType)
+  @IsOptional()
+  mediaType?: MediaType;
+
+  @ApiProperty({
+    description: 'Whether to archive the story',
+    example: true,
+    required: false,
+  })
+  @IsBoolean()
+  @IsOptional()
+  isArchived?: boolean;
+}
+
+export class StoryResponseDto {
+  @ApiProperty({ description: 'Unique identifier of the story', example: 1 })
+  id: number;
+
+  @ApiProperty({
+    description: 'Caption of the story',
+    example: 'My amazing day at the beach!',
+    nullable: true,
+  })
+  caption: string | null;
+
+  @ApiProperty({
+    description: 'URL of the media',
+    example: 'https://example.com/stories/abc123.jpg',
+  })
+  mediaUrl: string;
+
+  @ApiProperty({
+    description: 'Type of media',
+    enum: MediaType,
+    example: MediaType.IMAGE,
+  })
+  mediaType: MediaType;
+
+  @ApiProperty({
+    description: 'Whether the story is archived',
+    example: false,
+  })
+  isArchived: boolean;
+
+  @ApiProperty({
+    description: 'When the story was created',
+    type: Date,
+    example: '2025-08-06T14:30:00.000Z',
+  })
+  createdAt: Date;
+
+  @ApiProperty({
+    description: 'When the story was last updated',
+    type: Date,
+    example: '2025-08-06T14:30:00.000Z',
+  })
+  updatedAt: Date;
+
+  @ApiProperty({
+    description: 'When the story will expire',
+    type: Date,
+    nullable: true,
+    example: '2025-08-07T14:30:00.000Z',
+  })
+  expiresAt: Date | null;
+
+  @ApiProperty({
+    description: 'ID of the user who created the story',
+    example: 1,
+  })
+  userId: number;
+}
