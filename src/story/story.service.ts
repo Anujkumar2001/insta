@@ -87,18 +87,30 @@ export class StoryService {
     });
   }
 
-  async update(id: number, updateDto: UpdateStoryDto): Promise<Story> {
+  async update(
+    id: number,
+    updateDto: UpdateStoryDto,
+    userId: number,
+  ): Promise<Story> {
     const story = await this.findOne(id);
+
+    if (story.userId !== userId) {
+      throw new NotFoundException('permission denied');
+    }
+
     Object.assign(story, updateDto);
     return await this.storyRepository.save(story);
   }
 
-  async remove(id: number): Promise<void> {
+  async remove(id: number, userId: number): Promise<void> {
     const story = await this.findOne(id);
+    if (story.userId !== userId) {
+      throw new NotFoundException('permission denied');
+    }
     await this.storyRepository.remove(story);
   }
 
-  async findFollowingStories(userId: number): Promise<Story[]> {
+  private async findFollowingStories(userId: number): Promise<Story[]> {
     const followingRelations = await this.followerRepository.find({
       where: { follower: { id: userId } },
       relations: ['following'],
@@ -121,6 +133,7 @@ export class StoryService {
         createdAt: MoreThan(oneDayAgo),
         isArchived: false,
       },
+      relations: ['user'],
       order: { createdAt: 'DESC' },
     });
   }
@@ -144,7 +157,7 @@ export class StoryService {
     return await this.storyViewRepository.save(storyView);
   }
 
-  async getViewedStories(userId: number): Promise<number[]> {
+  private async getViewedStories(userId: number): Promise<number[]> {
     const views = await this.storyViewRepository.find({
       where: { userId },
       select: ['storyId'],

@@ -22,12 +22,12 @@ export class StoryController {
   constructor(private readonly storyService: StoryService) {}
 
   @Post()
-  create(@Body() createDto: CreateStoryDto, @UserDetails() user: User) {
+  createStory(@Body() createDto: CreateStoryDto, @UserDetails() user: User) {
     return this.storyService.create(createDto, user.id);
   }
 
   @Get()
-  findAll() {
+  findAllStories() {
     return this.storyService.findAll();
   }
 
@@ -41,29 +41,35 @@ export class StoryController {
     return this.storyService.findStoriesByUser(userId);
   }
 
-  @Get(':storyId')
-  findOne(@Param('storyId', ParseIntPipe) storyId: number) {
-    return this.storyService.getStoryDetails(storyId);
+  @Get('me')
+  getStoryDetails(@UserDetails() user: User) {
+    return this.storyService.findStoriesByUser(user.id);
   }
 
   @Patch(':id')
-  update(
+  updateStory(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateDto: UpdateStoryDto,
+    @UserDetails() user: User,
   ) {
-    return this.storyService.update(id, updateDto);
+    return this.storyService.update(id, updateDto, user.id);
   }
 
   @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.storyService.remove(id);
-  }
-
-  @Post('view/:storyId')
-  viewStory(
-    @Param('storyId', ParseIntPipe) storyId: number,
+  removeStory(
+    @Param('id', ParseIntPipe) id: number,
     @UserDetails() user: User,
   ) {
-    return this.storyService.viewStory(user.id, storyId);
+    return this.storyService.remove(id, user.id);
+  }
+
+  @Post('view/:id')
+  viewStory(@Param('id', ParseIntPipe) id: number, @UserDetails() user: User) {
+    return this.storyService.viewStory(user.id, id);
+  }
+
+  @Get('me')
+  getMyStories(@UserDetails() user: User) {
+    return this.storyService.findStoriesByUser(user.id);
   }
 }
