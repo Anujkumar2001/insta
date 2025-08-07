@@ -1,9 +1,18 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { plainToInstance } from 'class-transformer';
 import { PostService } from 'src/post/post.service';
 import { UsersService } from 'src/users/users.service';
 import { Repository } from 'typeorm';
+import {
+  LikeResponseDto,
+  LikesCountResponseDto,
+} from './dto/like.response.dto';
+import { CreateLikeDto, LikeDto } from './dto/likes.dto';
 import { Like } from './entities/likes.entity';
 
 @Injectable()
@@ -15,7 +24,12 @@ export class LikesService {
     private readonly usersService: UsersService,
   ) {}
 
-  async createLike(postId: number, userId: number): Promise<any> {
+  async createLike(
+    createLikeDto: CreateLikeDto,
+    userId: number,
+  ): Promise<LikeResponseDto> {
+    const { postId } = createLikeDto;
+
     const userExists = await this.checkUserExists(userId);
     if (!userExists) {
       throw new NotFoundException('User not found');
@@ -28,10 +42,19 @@ export class LikesService {
 
     const existingLike = await this.findExistingLike(userId, postId);
     if (existingLike) {
-      throw new NotFoundException('Post already liked');
+      throw new BadRequestException('Post already liked');
     }
+
     const savedLike = await this.saveNewLike(userId, postId);
-    return { message: 'Post liked successfully', data: savedLike };
+    const likeDto = plainToInstance(LikeDto, savedLike, {
+      excludeExtraneousValues: true,
+    });
+
+    return {
+      success: true,
+      data: likeDto,
+      message: 'Like created successfully',
+    };
   }
 
   private async checkUserExists(userId: number): Promise<boolean> {
@@ -44,7 +67,10 @@ export class LikesService {
     return !!post;
   }
 
-  private async findExistingLike(userId: number, postId: number): Promise<any> {
+  private async findExistingLike(
+    userId: number,
+    postId: number,
+  ): Promise<Like | null> {
     return this.likesRepository.findOne({
       where: {
         postId,
@@ -53,18 +79,24 @@ export class LikesService {
     });
   }
 
-  private async saveNewLike(userId: number, postId: number): Promise<any> {
+  private async saveNewLike(userId: number, postId: number): Promise<Like> {
     const like = this.likesRepository.create({
       post: { id: postId },
       user: { id: userId },
-      postId,
-      userId,
     });
 
     return this.likesRepository.save(like);
   }
 
-  async getAllLikes(postId: number, userId?: number): Promise<any> {
+  async getAllLikes(
+    postId: number,
+    userId?: number,
+  ): Promise<LikesCountResponseDto> {
+    const postExists = await this.checkPostExists(postId);
+    if (!postExists) {
+      throw new NotFoundException('Post not found');
+    }
+
     const likesCount = await this.likesRepository.count({
       where: {
         postId,
@@ -77,6 +109,11 @@ export class LikesService {
       userHasLiked = !!userLike;
     }
 
-    return { likesCount, userHasLiked };
+    return {
+      success: true,
+      likesCount,
+      userHasLiked,
+      message: 'Likes retrieved successfully',
+    };
   }
 }

@@ -69,7 +69,7 @@ export class PostController {
     @UserDetails() user: User,
   ): Promise<{ success: boolean }> {
     const userId = user.id;
-    await this.likesService.createLike(postId, userId);
+    await this.likesService.createLike({ postId }, userId);
     return { success: true };
   }
 
