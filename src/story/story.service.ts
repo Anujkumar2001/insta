@@ -1,10 +1,12 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import {
   ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Follower } from 'src/followers/entity/follower.entity';
+import { FollowersService } from 'src/followers/followers.service';
 import { In, MoreThan, Repository } from 'typeorm';
 import { CreateStoryDto } from './dto/create-story.dto';
 import { UpdateStoryDto } from './dto/update-story.dto';
@@ -18,8 +20,7 @@ export class StoryService {
     private readonly storyRepository: Repository<Story>,
     @InjectRepository(StoryView)
     private readonly storyViewRepository: Repository<StoryView>,
-    @InjectRepository(Follower)
-    private readonly followerRepository: Repository<Follower>,
+    private readonly followersService: FollowersService,
   ) {}
 
   async create(createStoryDto: CreateStoryDto, userId: number): Promise<Story> {
@@ -102,10 +103,10 @@ export class StoryService {
   }
 
   private async findFollowingStories(userId: number): Promise<Story[]> {
-    const followingRelations = await this.followerRepository.find({
-      where: { follower: { id: userId } },
-      relations: ['following'],
-    });
+    const followingRelations = await this.followersService.getFollowing(
+      userId,
+      { limit: 10, offset: 0 },
+    );
 
     const followingIds = followingRelations.map(
       (relation) => relation.following.id,
