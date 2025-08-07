@@ -49,4 +49,5 @@ export class User {
 
   @OneToMany(() => Story, (story) => story.user)
   stories: Story[];
+  sub: number;
 }

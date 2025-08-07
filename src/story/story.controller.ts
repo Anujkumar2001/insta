@@ -31,14 +31,19 @@ export class StoryController {
     return this.storyService.findAll();
   }
 
+  @Get('following')
+  getFollowingStories(@UserDetails() user: User) {
+    return this.storyService.getFollowingStoriesWithViewStatus(user.id);
+  }
+
   @Get('user/:userId')
   findStoriesByUser(@Param('userId', ParseIntPipe) userId: number) {
     return this.storyService.findStoriesByUser(userId);
   }
 
-  @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.storyService.findOne(id);
+  @Get(':storyId')
+  findOne(@Param('storyId', ParseIntPipe) storyId: number) {
+    return this.storyService.getStoryDetails(storyId);
   }
 
   @Patch(':id')
@@ -52,5 +57,13 @@ export class StoryController {
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.storyService.remove(id);
+  }
+
+  @Post('view/:storyId')
+  viewStory(
+    @Param('storyId', ParseIntPipe) storyId: number,
+    @UserDetails() user: User,
+  ) {
+    return this.storyService.viewStory(user.id, storyId);
   }
 }

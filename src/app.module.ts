@@ -11,6 +11,7 @@ import { Like } from './likes/entities/likes.entity';
 import { LikesModule } from './likes/likes.module';
 import { Post } from './post/entities/post.entity';
 import { PostModule } from './post/post.module';
+import { StoryView } from './story/entities/story-view.entity';
 import { Story } from './story/entities/story.entity';
 import { StoryModule } from './story/story.module';
 import { User } from './users/entities/user.entity';
@@ -26,7 +27,7 @@ import { UsersModule } from './users/users.module';
       username: config.db.auth.DB_USER_NAME,
       password: config.db.auth.DB_PASSWORD,
       database: config.db.auth.DB_NAME,
-      entities: [User, Post, Like, Comment, Follower, Story],
+      entities: [User, Post, Like, Comment, Follower, Story, StoryView],
       synchronize: true,
     }),
     AuthModule,

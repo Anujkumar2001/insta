@@ -42,7 +42,6 @@ export class Story {
 
   @ManyToOne(() => User, (user: User) => user.stories, {
     onDelete: 'CASCADE',
-    eager: true,
   })
   user: User;
 
