@@ -1,18 +1,16 @@
-import { Expose } from 'class-transformer';
-import { IsNotEmpty, IsString } from 'class-validator';
-
-export class CommentDto {
-  @IsString()
-  @IsNotEmpty()
-  content: string;
-}
+import { Expose, Type } from 'class-transformer';
+import { CommentDto } from './comment.dto';
 
 export class CommentResponseDto {
   @Expose()
   id: number;
 
   @Expose()
-  content: string;
+  @Type(() => CommentDto)
+  data: CommentDto;
+
+  @Expose()
+  comments: string[];
 
   @Expose()
   createdAt: Date;

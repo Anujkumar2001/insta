@@ -93,7 +93,7 @@ export class PostController {
     return this.commentService.createComment(
       userId,
       postId,
-      commentDto.content,
+      commentDto.comment,
     );
   }
 

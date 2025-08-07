@@ -1,14 +1,11 @@
-import {
-  BadRequestException,
-  Injectable,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
+import { plainToInstance } from 'class-transformer';
 import { PostService } from 'src/post/post.service';
 import { UsersService } from 'src/users/users.service';
+import { CommentResponseDto } from './dto/comment.response.dto';
 import { Comment } from './entities/comment.entity';
 
 @Injectable()
@@ -26,13 +23,13 @@ export class CommentsService {
     userId: number,
     postId: number,
     content: string,
-  ): Promise<any> {
+  ): Promise<CommentResponseDto> {
     await this.validateUserExists(userId);
 
     const isPostExists = await this.postService.getPostById(postId);
 
     if (!isPostExists) {
-      throw new BadRequestException('Post not found');
+      throw new NotFoundException('Post not found');
     }
 
     const existingComment = await this.findExistingComment(userId, postId);
@@ -59,17 +56,22 @@ export class CommentsService {
   private async addToExistingComment(
     existingComment: Comment,
     content: string,
-  ): Promise<any> {
+  ): Promise<CommentResponseDto> {
     existingComment.comments.push(content);
     const savedComment = await this.commentRepository.save(existingComment);
-    return savedComment;
+    return plainToInstance(CommentResponseDto, {
+      id: savedComment.id,
+      comments: savedComment.comments,
+      createdAt: savedComment.createdAt,
+      updatedAt: savedComment.updatedAt,
+    });
   }
 
   private async createNewComment(
     userId: number,
     postId: number,
     content: string,
-  ): Promise<any> {
+  ): Promise<CommentResponseDto> {
     const newComment = this.commentRepository.create({
       user: { id: userId },
       post: { id: postId },
@@ -77,10 +79,18 @@ export class CommentsService {
     });
 
     const savedComment = await this.commentRepository.save(newComment);
-    return savedComment;
+
+    const response = plainToInstance(CommentResponseDto, {
+      id: savedComment.id,
+      comments: savedComment.comments,
+      createdAt: savedComment.createdAt,
+      updatedAt: savedComment.updatedAt,
+    });
+
+    return response;
   }
 
-  async getComments(postId: number): Promise<any[]> {
+  async getComments(postId: number): Promise<CommentResponseDto[]> {
     const comments = await this.commentRepository.find({
       where: { post: { id: postId } },
       relations: ['user'],
@@ -91,7 +101,15 @@ export class CommentsService {
       return [];
     }
 
-    return comments;
+    return comments.map((comment) => {
+      return plainToInstance(CommentResponseDto, {
+        id: comment.id,
+        user: comment.user,
+        comments: comment.comments,
+        createdAt: comment.createdAt,
+        updatedAt: comment.updatedAt,
+      });
+    });
   }
 
   private async validateUserExists(userId: number): Promise<void> {
