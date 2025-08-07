@@ -6,7 +6,6 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { UserProfileDto } from '../users/dto/user-profile.dto';
 import { UsersService } from '../users/users.service';
 import { FollowResponseDto } from './dto/follow-response.dto';
 import { FollowUserDto } from './dto/follow-user.dto';
@@ -28,6 +27,9 @@ export class FollowersService {
   ): Promise<FollowResponseDto> {
     const followerId = userId;
     const followingId = followUserDto.userId;
+
+    await this.validateUserExists(followerId, 'Follower');
+    await this.validateUserExists(followingId, 'Following');
 
     if (followerId === followingId) {
       throw new HttpException(
@@ -78,6 +80,8 @@ export class FollowersService {
     userId: number,
     unfollowUserDto: UnfollowUserDto,
   ): Promise<void> {
+    await this.validateUserExists(userId, 'Follower');
+    await this.validateUserExists(unfollowUserDto.userId, 'Following');
     const result = await this.followerRepository.delete({
       follower: { id: userId },
       following: { id: unfollowUserDto.userId },
@@ -91,7 +95,7 @@ export class FollowersService {
   async getFollowers(
     userId: number,
     pagination: PaginationQueryDto,
-  ): Promise<UserProfileDto[]> {
+  ): Promise<any[]> {
     const { limit = 10, offset = 0 } = pagination;
 
     const followers = await this.followerRepository.find({
@@ -102,13 +106,13 @@ export class FollowersService {
       order: { createdAt: 'DESC' },
     });
 
-    return followers.map((follow) => new UserProfileDto(follow.follower));
+    return followers;
   }
 
   async getFollowing(
     userId: number,
     pagination: PaginationQueryDto,
-  ): Promise<UserProfileDto[]> {
+  ): Promise<any[]> {
     const { limit = 10, offset = 0 } = pagination;
 
     const following = await this.followerRepository.find({
@@ -119,7 +123,7 @@ export class FollowersService {
       order: { createdAt: 'DESC' },
     });
 
-    return following.map((follow) => new UserProfileDto(follow.following));
+    return following;
   }
 
   async isFollowing(userId: number, targetUserId: number): Promise<boolean> {
@@ -131,5 +135,14 @@ export class FollowersService {
     });
 
     return count > 0;
+  }
+  private async validateUserExists(
+    userId: number,
+    context: string,
+  ): Promise<void> {
+    const user = await this.usersService.findUserById(userId);
+    if (!user) {
+      throw new NotFoundException(`${context} user not found`);
+    }
   }
 }
