@@ -1,5 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { plainToInstance } from 'class-transformer';
+import { UsersService } from 'src/users/users.service';
 import { Repository } from 'typeorm';
 import { CreatePostDto } from './dto/create-post.dto';
 import { PostResponseDto } from './dto/post-response.dto';
@@ -11,20 +13,22 @@ export class PostService {
   constructor(
     @InjectRepository(Post)
     private readonly postRepository: Repository<Post>,
+    private readonly usersService: UsersService,
   ) {}
 
   async createPost(
     createPostDto: CreatePostDto & { userId: number },
   ): Promise<PostResponseDto> {
-    try {
-      const post = this.postRepository.create(createPostDto);
-      const savedPost = await this.postRepository.save(post);
-      return new PostResponseDto(savedPost);
-    } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'Unknown error';
-      throw new Error(`Failed to create post: ${errorMessage}`);
+    const user = await this.usersService.findUserById(createPostDto.userId);
+
+    if (!user) {
+      throw new NotFoundException(
+        `User with ID ${createPostDto.userId} not found`,
+      );
     }
+    const post = this.postRepository.create(createPostDto);
+    const savedPost = await this.postRepository.save(post);
+    return savedPost;
   }
 
   async getAllPosts(
@@ -40,7 +44,7 @@ export class PostService {
       order: { createdAt: 'DESC' },
     });
 
-    return posts.map((post) => new PostResponseDto(post));
+    return posts;
   }
 
   async getPostById(postId: number): Promise<PostResponseDto> {
@@ -53,6 +57,8 @@ export class PostService {
       throw new NotFoundException(`Post with ID ${postId} not found`);
     }
 
-    return new PostResponseDto(post);
+    return plainToInstance(PostResponseDto, post, {
+      excludeExtraneousValues: true,
+    });
   }
 }

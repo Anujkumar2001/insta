@@ -25,8 +25,11 @@ export class Post {
   @Column()
   imgUrl: string;
 
-  @Column({ type: 'text', nullable: true })
-  location: string;
+  @Column('simple-json')
+  location: {
+    lat: number;
+    lng: number;
+  };
 
   @CreateDateColumn()
   createdAt: Date;

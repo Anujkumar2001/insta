@@ -1,4 +1,6 @@
-import { IsString, IsOptional } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsOptional, IsString, ValidateNested } from 'class-validator';
+import { LocationDto } from './location.dto';
 
 export class CreatePostDto {
   @IsString()
@@ -8,7 +10,8 @@ export class CreatePostDto {
   @IsString()
   imgUrl: string;
 
-  @IsString()
+  @ValidateNested()
+  @Type(() => LocationDto)
   @IsOptional()
-  location: string;
+  location: LocationDto;
 }

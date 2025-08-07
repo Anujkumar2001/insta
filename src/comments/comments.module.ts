@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from 'src/auth/auth.module';
 import config from 'src/core/config';
 import { PostModule } from 'src/post/post.module';
+import { UsersModule } from 'src/users/users.module';
 import { CommentsService } from './comments.service';
 import { Comment } from './entities/comment.entity';
 
@@ -13,6 +14,7 @@ import { Comment } from './entities/comment.entity';
     AuthModule,
     forwardRef(() => PostModule),
     JwtModule.register({ secret: config.db.auth.JWT_SECRET }),
+    UsersModule,
   ],
   controllers: [],
   providers: [CommentsService],

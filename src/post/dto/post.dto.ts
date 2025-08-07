@@ -8,5 +8,5 @@ export default class PostDto {
   caption: string;
 
   @IsString()
-  location: string;
+  location: { lat: number; lng: number };
 }

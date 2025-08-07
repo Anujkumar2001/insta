@@ -1,11 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-
 import {
-  BadRequestException,
   Controller,
   Delete,
   Get,
-  NotFoundException,
   Param,
   ParseIntPipe,
   Post,
@@ -31,16 +27,9 @@ export class FollowersController {
     @UserDetails() user: User,
     @Param('targetUserId', ParseIntPipe) targetUserId: number,
   ) {
-    try {
-      return await this.followersService.followUser(user.id, {
-        userId: targetUserId,
-      });
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw new NotFoundException(error.message);
-      }
-      throw new BadRequestException(error.message);
-    }
+    return await this.followersService.followUser(user.id, {
+      userId: targetUserId,
+    });
   }
 
   @Delete(':targetUserId')
@@ -48,16 +37,9 @@ export class FollowersController {
     @GetUser() user: User,
     @Param('targetUserId', ParseIntPipe) targetUserId: number,
   ) {
-    try {
-      await this.followersService.unfollowUser(user.id, {
-        userId: targetUserId,
-      });
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw new NotFoundException(error.message);
-      }
-      throw new BadRequestException(error.message);
-    }
+    return await this.followersService.unfollowUser(user.id, {
+      userId: targetUserId,
+    });
   }
 
   @Get('me')

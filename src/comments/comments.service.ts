@@ -1,8 +1,8 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { CommentResponseDto } from './dto/comment.response.dto';
+import { UsersService } from 'src/users/users.service';
 import { Comment } from './entities/comment.entity';
 
 @Injectable()
@@ -12,6 +12,7 @@ export class CommentsService {
   constructor(
     @InjectRepository(Comment)
     private readonly commentRepository: Repository<Comment>,
+    private readonly usersService: UsersService,
   ) {}
 
   async createComment(
@@ -20,6 +21,10 @@ export class CommentsService {
     content: string,
   ): Promise<any> {
     try {
+      const isUserExists = await this.usersService.findUserById(userId);
+      if (!isUserExists) {
+        throw new BadRequestException('User not found');
+      }
       const existingComment = await this.findExistingComment(userId, postId);
 
       if (existingComment) {
@@ -72,35 +77,17 @@ export class CommentsService {
     return savedComment;
   }
 
-  async getComments(postId: number): Promise<CommentResponseDto[]> {
-    try {
-      const comments = await this.commentRepository.find({
-        where: { post: { id: postId } },
-        relations: ['user'],
-        order: { id: 'DESC' }, // Using id for ordering as it's guaranteed to exist
-      });
+  async getComments(postId: number): Promise<any[]> {
+    const comments = await this.commentRepository.find({
+      where: { post: { id: postId } },
+      relations: ['user'],
+      order: { id: 'DESC' },
+    });
 
-      if (!comments || comments.length === 0) {
-        return [];
-      }
-
-      return comments.map(
-        (comment) =>
-          new CommentResponseDto({
-            ...comment,
-            user: {
-              id: comment.user.id,
-              name: comment.user.name,
-              email: comment.user.email,
-            },
-          }),
-      );
-    } catch (error) {
-      this.logger.error(
-        `Failed to retrieve comments: ${(error as Error).message}`,
-        (error as Error).stack,
-      );
-      throw error;
+    if (!comments || comments.length === 0) {
+      return [];
     }
+
+    return comments;
   }
 }

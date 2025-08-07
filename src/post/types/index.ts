@@ -1,6 +1,6 @@
 export interface CreatePostDto {
   caption: string;
   imgUrl: string;
-  location: string;
+  location: { lat: number; lng: number };
   userId: number;
 }

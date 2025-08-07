@@ -1,28 +1,32 @@
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 
 export class PostResponseDto {
   @Expose()
+  @ApiProperty()
   id: number;
 
   @Expose()
-  caption: string;
+  @ApiPropertyOptional()
+  caption?: string;
 
   @Expose()
+  @ApiProperty()
   imgUrl: string;
 
   @Expose()
-  location: string;
+  @ApiPropertyOptional()
+  location?: { lat: number; lng: number };
 
-  @Expose({ name: 'userId' })
+  @Expose()
+  @ApiProperty()
   userId: number;
 
   @Expose()
+  @ApiProperty()
   createdAt: Date;
 
-  constructor(partial: Partial<PostResponseDto>) {
-    Object.assign(this, partial);
-  }
-
   @Expose()
+  @ApiProperty()
   updatedAt: Date;
 }

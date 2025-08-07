@@ -17,6 +17,7 @@ import { AuthGuard } from 'src/guards/auth.guard';
 import { LikesService } from 'src/likes/likes.service';
 import { User } from 'src/users/entities/user.entity';
 import { CreatePostDto } from './dto/create-post.dto';
+import { PostResponseDto } from './dto/post-response.dto';
 import { PostsPaginationDto } from './dto/posts-pagination.dto';
 import { PostService } from './post.service';
 
@@ -35,7 +36,7 @@ export class PostController {
   async createPost(
     @Body() createPostDto: CreatePostDto,
     @UserDetails() user: User,
-  ) {
+  ): Promise<any> {
     const userId = user.id;
     const post = await this.postService.createPost({
       ...createPostDto,
@@ -48,10 +49,17 @@ export class PostController {
   async getAllPosts(
     @UserDetails() user: User,
     @Query() pagination: PostsPaginationDto,
-  ) {
+  ): Promise<PostResponseDto[]> {
     const userId = user.id;
     const posts = await this.postService.getAllPosts(userId, pagination);
     return posts;
+  }
+
+  @Get(':postId')
+  async getPostById(
+    @Param('postId', ParseIntPipe) postId: number,
+  ): Promise<PostResponseDto> {
+    return this.postService.getPostById(postId);
   }
 
   @Post(':postId/likes')
@@ -59,9 +67,10 @@ export class PostController {
   async likePost(
     @Param('postId', ParseIntPipe) postId: number,
     @UserDetails() user: User,
-  ) {
+  ): Promise<{ success: boolean }> {
     const userId = user.id;
     await this.likesService.createLike(postId, userId);
+    return { success: true };
   }
 
   @Get(':postId/likes')
@@ -75,12 +84,13 @@ export class PostController {
 
   @Post(':postId/comments')
   @HttpCode(201)
-  createComment(
+  async createComment(
     @Body() commentDto: CommentDto,
-    @Param('postId') postId: number,
+    @Param('postId', ParseIntPipe) postId: number,
     @UserDetails() user: User,
-  ) {
+  ): Promise<any> {
     const userId = user.id;
+    console.log(userId);
     return this.commentService.createComment(
       userId,
       postId,

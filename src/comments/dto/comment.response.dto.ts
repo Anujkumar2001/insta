@@ -1,14 +1,10 @@
-import { Expose, Type } from 'class-transformer';
+import { Expose } from 'class-transformer';
+import { IsNotEmpty, IsString } from 'class-validator';
 
-export class CommentUserDto {
-  @Expose()
-  id: number;
-
-  @Expose()
-  name: string;
-
-  @Expose()
-  email: string;
+export class CommentDto {
+  @IsString()
+  @IsNotEmpty()
+  content: string;
 }
 
 export class CommentResponseDto {
@@ -16,19 +12,11 @@ export class CommentResponseDto {
   id: number;
 
   @Expose()
-  comments: string[];
-
-  @Expose()
-  @Type(() => CommentUserDto)
-  user: CommentUserDto;
+  content: string;
 
   @Expose()
   createdAt: Date;
 
   @Expose()
   updatedAt: Date;
-
-  constructor(partial: Partial<CommentResponseDto>) {
-    Object.assign(this, partial);
-  }
 }
