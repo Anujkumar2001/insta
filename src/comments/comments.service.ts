@@ -1,7 +1,13 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
+import { PostService } from 'src/post/post.service';
 import { UsersService } from 'src/users/users.service';
 import { Comment } from './entities/comment.entity';
 
@@ -13,6 +19,7 @@ export class CommentsService {
     @InjectRepository(Comment)
     private readonly commentRepository: Repository<Comment>,
     private readonly usersService: UsersService,
+    private readonly postService: PostService,
   ) {}
 
   async createComment(
@@ -20,25 +27,21 @@ export class CommentsService {
     postId: number,
     content: string,
   ): Promise<any> {
-    try {
-      const isUserExists = await this.usersService.findUserById(userId);
-      if (!isUserExists) {
-        throw new BadRequestException('User not found');
-      }
-      const existingComment = await this.findExistingComment(userId, postId);
+    await this.validateUserExists(userId);
 
-      if (existingComment) {
-        return this.addToExistingComment(existingComment, content);
-      }
+    const isPostExists = await this.postService.getPostById(postId);
 
-      return this.createNewComment(userId, postId, content);
-    } catch (error) {
-      this.logger.error(
-        `Failed to create comment: ${(error as Error).message}`,
-        (error as Error).stack,
-      );
-      throw error;
+    if (!isPostExists) {
+      throw new BadRequestException('Post not found');
     }
+
+    const existingComment = await this.findExistingComment(userId, postId);
+
+    if (existingComment) {
+      return this.addToExistingComment(existingComment, content);
+    }
+
+    return this.createNewComment(userId, postId, content);
   }
 
   private async findExistingComment(
@@ -89,5 +92,12 @@ export class CommentsService {
     }
 
     return comments;
+  }
+
+  private async validateUserExists(userId: number): Promise<void> {
+    const isUserExists = await this.usersService.findUserById(userId);
+    if (!isUserExists) {
+      throw new NotFoundException('User not found');
+    }
   }
 }

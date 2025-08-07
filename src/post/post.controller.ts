@@ -90,7 +90,6 @@ export class PostController {
     @UserDetails() user: User,
   ): Promise<any> {
     const userId = user.id;
-    console.log(userId);
     return this.commentService.createComment(
       userId,
       postId,

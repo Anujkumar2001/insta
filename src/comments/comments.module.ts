@@ -15,6 +15,7 @@ import { Comment } from './entities/comment.entity';
     forwardRef(() => PostModule),
     JwtModule.register({ secret: config.db.auth.JWT_SECRET }),
     UsersModule,
+    PostModule,
   ],
   controllers: [],
   providers: [CommentsService],
