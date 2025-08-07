@@ -14,7 +14,6 @@ export class AuthService {
   ) {}
   async login(email: string, password: string): Promise<any> {
     const user = await this.userService.findUserWithPassword(email);
-    console.log(user);
     if (!user) {
       throw new UnauthorizedException();
     }
@@ -38,9 +37,8 @@ export class AuthService {
       return {
         data: user,
       };
-    } catch (error) {
-      console.error(error);
-      throw new UnauthorizedException('Internal server error');
+    } catch (err) {
+      throw new UnauthorizedException(`${err}`);
     }
   }
 }

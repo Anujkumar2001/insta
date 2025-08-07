@@ -21,25 +21,20 @@ export class UsersService {
     password: string,
     name: string,
   ): Promise<User | any> {
-    try {
-      const existingUser = await this.userRepository.findOne({
-        where: { email },
-      });
+    const existingUser = await this.userRepository.findOne({
+      where: { email },
+    });
 
-      if (existingUser) {
-        return {
-          success: false,
-          message: 'User already exists with this email',
-          statusCode: 400,
-        };
-      }
-
-      const user = this.userRepository.create({ email, password, name });
-      return await this.userRepository.save(user);
-    } catch (error) {
-      console.error('Create User Error:', error);
-      return { message: 'Internal server error', statusCode: 500 };
+    if (existingUser) {
+      return {
+        success: false,
+        message: 'User already exists with this email',
+        statusCode: 400,
+      };
     }
+
+    const user = this.userRepository.create({ email, password, name });
+    return await this.userRepository.save(user);
   }
 
   async findUserById(userId: number): Promise<UserProfileDto | null> {
