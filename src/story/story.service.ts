@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Follower } from 'src/followers/entity/follower.entity';
 import { In, MoreThan, Repository } from 'typeorm';
@@ -23,20 +27,7 @@ export class StoryService {
     return await this.storyRepository.save(story);
   }
 
-  async findAll(): Promise<Story[]> {
-    const oneDayAgo = new Date();
-    oneDayAgo.setDate(oneDayAgo.getDate() - 1);
-
-    return await this.storyRepository.find({
-      where: {
-        createdAt: MoreThan(oneDayAgo),
-        isArchived: false,
-      },
-      order: { createdAt: 'DESC' },
-    });
-  }
-
-  async findOne(id: number): Promise<Story> {
+  private async findOne(id: number): Promise<Story> {
     const story = await this.storyRepository.findOne({ where: { id } });
     if (!story) throw new NotFoundException('Story not found');
     return story;
@@ -95,7 +86,7 @@ export class StoryService {
     const story = await this.findOne(id);
 
     if (story.userId !== userId) {
-      throw new NotFoundException('permission denied');
+      throw new ForbiddenException('permission denied');
     }
 
     Object.assign(story, updateDto);
@@ -105,7 +96,7 @@ export class StoryService {
   async remove(id: number, userId: number): Promise<void> {
     const story = await this.findOne(id);
     if (story.userId !== userId) {
-      throw new NotFoundException('permission denied');
+      throw new ForbiddenException('permission denied');
     }
     await this.storyRepository.remove(story);
   }
