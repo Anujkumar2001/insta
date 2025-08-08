@@ -1,6 +1,11 @@
-/* eslint-disable @typescript-eslint/no-redundant-type-constituents */
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { SignupResponseDto } from 'src/auth/dto/signup.responce.dto';
 import { Repository } from 'typeorm';
 import { UserProfileDto } from './dto/user-profile.dto';
 import { User } from './entities/user.entity';
@@ -20,17 +25,16 @@ export class UsersService {
     email: string,
     password: string,
     name: string,
-  ): Promise<User | any> {
+  ): Promise<SignupResponseDto> {
     const existingUser = await this.userRepository.findOne({
       where: { email },
     });
 
     if (existingUser) {
-      return {
-        success: false,
-        message: 'User already exists with this email',
-        statusCode: 400,
-      };
+      throw new HttpException(
+        'User already exists with this email',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     const user = this.userRepository.create({ email, password, name });

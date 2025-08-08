@@ -1,10 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcryptjs from 'bcryptjs';
 import { UsersService } from 'src/users/users.service';
+import LoginResponseDto from './dto/login.responce.dto';
+import { SignupResponseDto } from './dto/signup.responce.dto';
 
 @Injectable()
 export class AuthService {
@@ -12,7 +11,7 @@ export class AuthService {
     private userService: UsersService,
     private jwtService: JwtService,
   ) {}
-  async login(email: string, password: string): Promise<any> {
+  async login(email: string, password: string): Promise<LoginResponseDto> {
     const user = await this.userService.findUserWithPassword(email);
     if (!user) {
       throw new UnauthorizedException();
@@ -23,20 +22,19 @@ export class AuthService {
     }
     const payload = { email: email, id: user.id };
     return {
-      access_token: this.jwtService.sign(payload),
+      accessToken: this.jwtService.sign(payload),
     };
   }
 
-  async signup(email: string, password: string, name: string): Promise<any> {
+  async signup(
+    email: string,
+    password: string,
+    name: string,
+  ): Promise<SignupResponseDto> {
     try {
       const passwordHash = await bcryptjs.hash(password, 10);
       const user = await this.userService.createUser(email, passwordHash, name);
-      if (user?.statusCode && user.statusCode !== 201) {
-        return user;
-      }
-      return {
-        data: user,
-      };
+      return user;
     } catch (err) {
       throw new UnauthorizedException(`${err}`);
     }
