@@ -10,6 +10,7 @@ import { UsersService } from '../users/users.service';
 import { FollowResponseDto } from './dto/follow-response.dto';
 import { FollowUserDto } from './dto/follow-user.dto';
 import { PaginationQueryDto } from './dto/pagination-query.dto';
+import { UnfollowResponseDto } from './dto/unfollow-response.dto';
 import { UnfollowUserDto } from './dto/unFollow-user.dto';
 import { Follower } from './entity/follower.entity';
 
@@ -79,7 +80,7 @@ export class FollowersService {
   async unfollowUser(
     userId: number,
     unfollowUserDto: UnfollowUserDto,
-  ): Promise<void> {
+  ): Promise<UnfollowResponseDto> {
     await this.validateUserExists(userId, 'Follower');
     await this.validateUserExists(unfollowUserDto.userId, 'Following');
     const result = await this.followerRepository.delete({
@@ -90,6 +91,12 @@ export class FollowersService {
     if (result.affected === 0) {
       throw new NotFoundException('Follow relationship not found');
     }
+
+    return {
+      unfollowed: true,
+      userId,
+      targetUserId: unfollowUserDto.userId,
+    };
   }
 
   async getFollowers(
