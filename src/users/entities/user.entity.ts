@@ -1,7 +1,7 @@
-import { Comment } from 'src/comments/entities/comment.entity';
 import { Follower } from 'src/followers/entity/follower.entity';
-import { Like } from 'src/likes/entities/likes.entity';
 import { Post } from 'src/post/entities/post.entity';
+import { Comment } from 'src/post/modules/comments/entities/comment.entity';
+import { Like } from 'src/post/modules/likes/entities/likes.entity';
 import { Story } from 'src/story/entities/story.entity';
 import {
   Column,

@@ -9,14 +9,19 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { CommentsService } from 'src/comments/comments.service';
-import { CommentDto } from 'src/comments/dto/comment.dto';
-import { CommentResponseDto } from 'src/comments/dto/comment.response.dto';
+import {
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { UserDetails } from 'src/core/common/user.decorator';
 import { AuthGuard } from 'src/guards/auth.guard';
-import { LikesCountResponseDto } from 'src/likes/dto/like.response.dto';
-import { LikesService } from 'src/likes/likes.service';
+import { CommentsService } from 'src/post/modules/comments/comments.service';
+import { CommentDto } from 'src/post/modules/comments/dto/comment.dto';
+import { CommentResponseDto } from 'src/post/modules/comments/dto/comment.response.dto';
+import { LikesCountResponseDto } from 'src/post/modules/likes/dto/like.response.dto';
+import { LikesService } from 'src/post/modules/likes/likes.service';
 import { User } from 'src/users/entities/user.entity';
 import { CreatePostDto } from './dto/create-post.dto';
 import { PostResponseDto } from './dto/post-response.dto';
@@ -35,7 +40,7 @@ export class PostController {
   ) {}
   @Post()
   @HttpCode(201)
-  @ApiOkResponse({ type: PostResponseDto })
+  @ApiCreatedResponse({ type: PostResponseDto })
   async createPost(
     @Body() createPostDto: CreatePostDto,
     @UserDetails() user: User,
@@ -49,7 +54,7 @@ export class PostController {
   }
 
   @Get()
-  @ApiOkResponse({ type: PostResponseDto })
+  @ApiOkResponse({ type: [PostResponseDto] })
   async getAllPosts(
     @UserDetails() user: User,
     @Query() pagination: PostsPaginationDto,
