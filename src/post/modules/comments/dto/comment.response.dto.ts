@@ -1,27 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose, Type } from 'class-transformer';
-
-export class UserDto {
-  @Expose()
-  @ApiProperty()
-  id: number;
-
-  @Expose()
-  @ApiProperty()
-  name: string;
-
-  @Expose()
-  @ApiProperty()
-  email: string;
-
-  @Expose()
-  @ApiProperty()
-  createdAt: Date;
-
-  @Expose()
-  @ApiProperty()
-  updatedAt: Date;
-}
+import { UserProfileDto } from 'src/users/dto/user-profile.dto';
 
 export class CommentResponseDto {
   @Expose()
@@ -33,9 +12,9 @@ export class CommentResponseDto {
   comment: string;
 
   @Expose()
-  @ApiProperty({ type: UserDto })
-  @Type(() => UserDto)
-  user: UserDto;
+  @ApiProperty({ type: UserProfileDto })
+  @Type(() => UserProfileDto)
+  user: UserProfileDto;
 
   @Expose()
   @ApiProperty()

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import {
   Controller,
   Delete,
@@ -10,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
-import { UserDetails } from 'src/core/common/user.decorator';
+import { UserDetails } from 'src/core/common/decorators/user.decorator';
 import { AuthGuard } from '../guards/auth.guard';
 import { User } from '../users/entities/user.entity';
 import { PaginationQueryDto } from './dto/pagination-query.dto';

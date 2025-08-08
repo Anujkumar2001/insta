@@ -1,9 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
+import { Expose } from 'class-transformer';
 
 class LoginResponseDto {
-  @IsString()
-  @ApiProperty({ example: 'access_token' })
+  @Expose()
+  @ApiProperty()
   accessToken: string;
 }
 

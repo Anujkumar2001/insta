@@ -12,7 +12,7 @@ import {
   UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
-import { UserDetails } from 'src/core/common/user.decorator';
+import { UserDetails } from 'src/core/common/decorators/user.decorator';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { User } from 'src/users/entities/user.entity';
 import { CreateStoryDto } from './dto/create-story.dto';
