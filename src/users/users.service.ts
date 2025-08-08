@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-redundant-type-constituents */
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserProfileDto } from './dto/user-profile.dto';
@@ -37,12 +37,15 @@ export class UsersService {
     return await this.userRepository.save(user);
   }
 
-  async findUserById(userId: number): Promise<UserProfileDto | null> {
+  async findUserById(userId: number): Promise<UserProfileDto> {
     const user = await this.userRepository
       .createQueryBuilder('user')
       .select(['user.id', 'user.email', 'user.name'])
       .where('user.id = :userId', { userId })
       .getOne();
+    if (!user) {
+      throw new NotFoundException('user not found');
+    }
     return user;
   }
 }
