@@ -2,6 +2,7 @@ import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import ResponseInterceptor from './core/common/interceptors/      response.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -23,6 +24,7 @@ async function bootstrap() {
       forbidNonWhitelisted: true, // throw an error if unknown properties are present
     }),
   );
+  app.useGlobalInterceptors(new ResponseInterceptor());
 
   app.enableVersioning({
     type: VersioningType.MEDIA_TYPE,
