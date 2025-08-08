@@ -13,6 +13,8 @@ import {
   ApiBearerAuth,
   ApiCreatedResponse,
   ApiOkResponse,
+  ApiOperation,
+  ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
 import { UserDetails } from 'src/core/common/user.decorator';
@@ -40,6 +42,7 @@ export class PostController {
   ) {}
   @Post()
   @HttpCode(201)
+  @ApiOperation({ summary: 'Create a new post' })
   @ApiCreatedResponse({ type: PostResponseDto })
   async createPost(
     @Body() createPostDto: CreatePostDto,
@@ -60,11 +63,12 @@ export class PostController {
     @Query() pagination: PostsPaginationDto,
   ): Promise<PostResponseDto[]> {
     const userId = user.id;
-    const posts = await this.postService.getAllPosts(userId, pagination);
-    return posts;
+    return this.postService.getAllPosts(userId, pagination);
   }
 
   @Get(':postId')
+  @ApiOperation({ summary: 'Get a post by ID' })
+  @ApiParam({ name: 'postId', description: 'Post ID', type: 'number' })
   @ApiOkResponse({ type: PostResponseDto })
   async getPostById(
     @Param('postId', ParseIntPipe) postId: number,
@@ -73,7 +77,12 @@ export class PostController {
   }
 
   @Post(':postId/likes')
-  @ApiOkResponse({ description: 'Like created successfully' })
+  @ApiOperation({ summary: 'Like a post' })
+  @ApiParam({ name: 'postId', description: 'Post ID', type: 'number' })
+  @ApiCreatedResponse({
+    description: 'Like created successfully',
+    type: Object,
+  })
   @HttpCode(201)
   async likePost(
     @Param('postId', ParseIntPipe) postId: number,
@@ -85,6 +94,8 @@ export class PostController {
   }
 
   @Get(':postId/likes')
+  @ApiOperation({ summary: 'Get likes count for a post' })
+  @ApiParam({ name: 'postId', description: 'Post ID', type: 'number' })
   @ApiOkResponse({ type: LikesCountResponseDto })
   async getPostLikes(
     @Param('postId', ParseIntPipe) postId: number,
@@ -95,7 +106,9 @@ export class PostController {
   }
 
   @Post(':postId/comments')
-  @ApiOkResponse({ type: CommentResponseDto })
+  @ApiOperation({ summary: 'Add a comment to a post' })
+  @ApiParam({ name: 'postId', description: 'Post ID', type: 'number' })
+  @ApiCreatedResponse({ type: CommentResponseDto })
   @HttpCode(201)
   async createComment(
     @Body() commentDto: CommentDto,
@@ -111,6 +124,8 @@ export class PostController {
   }
 
   @Get(':postId/comments')
+  @ApiOperation({ summary: 'Get all comments for a post' })
+  @ApiParam({ name: 'postId', description: 'Post ID', type: 'number' })
   @ApiOkResponse({ type: [CommentResponseDto] })
   async getComments(
     @Param('postId', ParseIntPipe) postId: number,

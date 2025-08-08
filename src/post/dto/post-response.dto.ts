@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Expose } from 'class-transformer';
+import { Exclude, Expose } from 'class-transformer';
+import { UserDto } from '../modules/comments/dto/comment.response.dto';
 import { LocationDto } from './location.dto';
 
 export class PostResponseDto {
@@ -19,9 +20,12 @@ export class PostResponseDto {
   @ApiPropertyOptional()
   location?: LocationDto;
 
+  @Exclude()
+  userId: number;
+
   @Expose()
   @ApiProperty()
-  userId: number;
+  user: UserDto;
 
   @Expose()
   @ApiProperty()

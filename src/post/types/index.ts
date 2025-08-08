@@ -4,3 +4,7 @@ export interface CreatePostDto {
   location: { lat: number; lng: number };
   userId: number;
 }
+
+export interface PaginatedResponse<T> {
+  data: T[];
+}

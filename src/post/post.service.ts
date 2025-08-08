@@ -28,7 +28,7 @@ export class PostService {
     }
     const post = this.postRepository.create(createPostDto);
     const savedPost = await this.postRepository.save(post);
-    return savedPost;
+    return plainToInstance(PostResponseDto, savedPost);
   }
 
   async getAllPosts(
@@ -37,14 +37,15 @@ export class PostService {
   ): Promise<PostResponseDto[]> {
     const { page = 1, limit = 10 } = pagination;
     const skip = (page - 1) * limit;
-    const posts = await this.postRepository.find({
+    const [posts] = await this.postRepository.findAndCount({
       where: { userId },
       take: limit,
+      relations: ['user'],
       skip,
       order: { createdAt: 'DESC' },
     });
 
-    return posts;
+    return plainToInstance(PostResponseDto, posts);
   }
 
   async getPostById(postId: number): Promise<PostResponseDto> {
@@ -57,8 +58,6 @@ export class PostService {
       throw new NotFoundException(`Post with ID ${postId} not found`);
     }
 
-    return plainToInstance(PostResponseDto, post, {
-      excludeExtraneousValues: true,
-    });
+    return plainToInstance(PostResponseDto, post);
   }
 }
