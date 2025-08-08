@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
+import { LocationDto } from './location.dto';
 
 export class PostResponseDto {
   @Expose()
@@ -16,7 +17,7 @@ export class PostResponseDto {
 
   @Expose()
   @ApiPropertyOptional()
-  location?: { lat: number; lng: number };
+  location?: LocationDto;
 
   @Expose()
   @ApiProperty()

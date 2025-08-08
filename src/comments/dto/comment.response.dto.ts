@@ -1,18 +1,28 @@
-import { Expose, Type } from 'class-transformer';
-import { CommentDto } from './comment.dto';
+import { ApiProperty } from '@nestjs/swagger';
+import { Expose } from 'class-transformer';
 
 export class CommentResponseDto {
   @Expose()
+  @ApiProperty()
   id: number;
 
   @Expose()
-  @Type(() => CommentDto)
-  data: CommentDto;
+  @ApiProperty()
+  comment: string[];
 
   @Expose()
-  comments: string[];
+  @ApiProperty()
+  user: {
+    id: number;
+    name: string;
+    email: string;
+    password: string;
+    createdAt: Date;
+    updatedAt: Date;
+  };
 
   @Expose()
+  @ApiProperty()
   createdAt: Date;
 
   @Expose()
