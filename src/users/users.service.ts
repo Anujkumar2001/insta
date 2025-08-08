@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { SignupResponseDto } from 'src/auth/dto/signup.responce.dto';
+import { SignupResponseDto } from 'src/auth/dto/signup.response.dto';
 import { Repository } from 'typeorm';
 import { UserProfileDto } from './dto/user-profile.dto';
 import { User } from './entities/user.entity';
