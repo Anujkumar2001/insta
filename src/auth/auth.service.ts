@@ -1,4 +1,11 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+import {
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcryptjs from 'bcryptjs';
 import { UsersService } from 'src/users/users.service';
@@ -36,7 +43,12 @@ export class AuthService {
       const user = await this.userService.createUser(email, passwordHash, name);
       return user;
     } catch (err) {
-      throw new UnauthorizedException(`${err}`);
+      if (err.message.includes('already exists')) {
+        throw new ConflictException(`User with this email already exists`);
+      }
+      throw new InternalServerErrorException(
+        `Failed to create user: ${err.message}`,
+      );
     }
   }
 }

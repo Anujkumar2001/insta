@@ -17,7 +17,6 @@ import { IsFollowingResponseDto } from './dto/is-following-response.dto';
 import { UnfollowResponseDto } from './dto/unfollow-response.dto';
 import { UserSummaryDto } from './dto/user-summary.dto';
 
-import { GetUser } from 'src/auth/decorators/get-user.decorator';
 import { UserDetails } from 'src/core/common/decorators/user.decorator';
 import { AuthGuard } from '../guards/auth.guard';
 import { User } from '../users/entities/user.entity';
@@ -51,7 +50,7 @@ export class FollowersController {
   @Delete(':targetUserId')
   @ApiEnvelopeResponse(UnfollowResponseDto)
   async unfollowUser(
-    @GetUser() user: User,
+    @UserDetails() user: User,
     @Param('targetUserId', ParseIntPipe) targetUserId: number,
   ): Promise<UnfollowResponseDto> {
     return await this.followersService.unfollowUser(user.id, {

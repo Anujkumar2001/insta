@@ -45,7 +45,9 @@ export class StoryController {
   @Get('following')
   @HttpCode(HttpStatus.OK)
   @ApiEnvelopeResponse(FollowingStoriesResponseDto, HttpStatus.OK)
-  async getFollowingStories(@UserDetails() user: User): Promise<any[]> {
+  async getFollowingStories(
+    @UserDetails() user: User,
+  ): Promise<FollowingStoriesResponseDto[]> {
     return this.storyService.getFollowingStoriesWithViewStatus(user.id);
   }
 

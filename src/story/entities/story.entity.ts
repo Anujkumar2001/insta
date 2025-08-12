@@ -46,5 +46,6 @@ export class Story {
   user: User;
 
   @Column()
+  @Index()
   userId: number;
 }

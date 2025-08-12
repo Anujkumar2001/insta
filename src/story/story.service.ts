@@ -9,6 +9,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { FollowersService } from 'src/followers/followers.service';
 import { In, MoreThan, Repository } from 'typeorm';
 import { CreateStoryDto } from './dto/create-story.dto';
+import { FollowingStoriesResponseDto } from './dto/following-stories-response.dto';
+import { StoryDetailsDto } from './dto/story-details.dto';
+import { StoryResponseDto } from './dto/story-response.dto';
 import { UpdateStoryDto } from './dto/update-story.dto';
 import { StoryView } from './entities/story-view.entity';
 import { Story } from './entities/story.entity';
@@ -34,7 +37,7 @@ export class StoryService {
     return story;
   }
 
-  async getStoryDetails(id: number): Promise<any> {
+  async getStoryDetails(id: number): Promise<StoryDetailsDto> {
     const story = await this.storyRepository.findOneBy({ id });
 
     if (!story) {
@@ -65,7 +68,7 @@ export class StoryService {
     };
   }
 
-  async findStoriesByUser(userId: number): Promise<Story[]> {
+  async findStoriesByUser(userId: number): Promise<StoryResponseDto[]> {
     const oneDayAgo = new Date();
     oneDayAgo.setDate(oneDayAgo.getDate() - 1);
 
@@ -158,12 +161,14 @@ export class StoryService {
     return views.map((view) => view.storyId);
   }
 
-  async getFollowingStoriesWithViewStatus(userId: number): Promise<any[]> {
+  async getFollowingStoriesWithViewStatus(
+    userId: number,
+  ): Promise<FollowingStoriesResponseDto[]> {
     const followingStories = await this.findFollowingStories(userId);
     const viewedStoryIds = await this.getViewedStories(userId);
 
     return followingStories.map((story) => ({
-      ...story,
+      story,
       viewed: viewedStoryIds.includes(story.id),
     }));
   }

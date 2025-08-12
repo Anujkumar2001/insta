@@ -2,6 +2,7 @@ import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { GlobalExceptionFilter } from './core/common/exception/global-exception-filter';
 import ResponseInterceptor from './core/common/interceptors/      response.interceptor';
 
 async function bootstrap() {
@@ -25,6 +26,7 @@ async function bootstrap() {
     }),
   );
   app.useGlobalInterceptors(new ResponseInterceptor());
+  app.useGlobalFilters(new GlobalExceptionFilter());
 
   app.enableVersioning({
     type: VersioningType.MEDIA_TYPE,
