@@ -1,10 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { HttpStatus, Type } from '@nestjs/common';
-import {
-  ApiCreatedResponse,
-  ApiOkResponse,
-  getSchemaPath,
-} from '@nestjs/swagger';
+import { ApiExtraModels, ApiResponse, getSchemaPath } from '@nestjs/swagger';
 import { ApiResponseDto } from '../dto/api.response.dto';
 
 export function ApiEnvelopeResponse<T>(
@@ -12,16 +8,17 @@ export function ApiEnvelopeResponse<T>(
   status: HttpStatus = HttpStatus.OK,
 ) {
   return (target: any, key: string, descriptor: PropertyDescriptor) => {
-    const decorator =
-      status === HttpStatus.CREATED ? ApiCreatedResponse : ApiOkResponse;
+    ApiExtraModels(ApiResponseDto, dto)(target, key, descriptor);
 
-    decorator({
+    ApiResponse({
+      status,
       schema: {
         type: 'object',
         allOf: [
           { $ref: getSchemaPath(ApiResponseDto) },
           {
             properties: {
+              statusCode: { type: 'number', example: status },
               data: { $ref: getSchemaPath(dto) },
             },
           },
