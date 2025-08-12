@@ -56,14 +56,14 @@ export class StoryController {
   @ApiEnvelopeResponse(StoryResponseDto, HttpStatus.OK)
   async findStoriesByUser(
     @Param('userId', ParseIntPipe) userId: number,
-  ): Promise<Story[]> {
+  ): Promise<StoryResponseDto[]> {
     return this.storyService.findStoriesByUser(userId);
   }
 
   @Get('me')
   @HttpCode(HttpStatus.OK)
   @ApiEnvelopeResponse(StoryResponseDto, HttpStatus.OK)
-  async getMyStories(@UserDetails() user: User): Promise<Story[]> {
+  async getMyStories(@UserDetails() user: User): Promise<StoryResponseDto[]> {
     return this.storyService.findStoriesByUser(user.id);
   }
 

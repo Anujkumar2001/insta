@@ -1,6 +1,6 @@
 // src/users/dto/user-response.dto.ts
 import { ApiProperty } from '@nestjs/swagger';
-import { Expose } from 'class-transformer';
+import { Exclude, Expose } from 'class-transformer';
 
 export class SignupResponseDto {
   @Expose()
@@ -14,4 +14,8 @@ export class SignupResponseDto {
   @Expose()
   @ApiProperty({ example: 'aman1@gmdail.com', description: 'Email address' })
   email: string;
+
+  @Exclude()
+  @ApiProperty({ example: 'aman1@gmdail.com', description: 'Email address' })
+  password: string;
 }

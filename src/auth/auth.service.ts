@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcryptjs from 'bcryptjs';
+import { plainToInstance } from 'class-transformer';
 import { UsersService } from 'src/users/users.service';
 import LoginResponseDto from './dto/login.response.dto';
 import { SignupResponseDto } from './dto/signup.response.dto';
@@ -28,9 +29,9 @@ export class AuthService {
       throw new UnauthorizedException();
     }
     const payload = { email: email, id: user.id };
-    return {
+    return plainToInstance(LoginResponseDto, {
       accessToken: this.jwtService.sign(payload),
-    };
+    });
   }
 
   async signup(

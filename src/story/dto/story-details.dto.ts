@@ -1,14 +1,34 @@
+import { Expose, Type } from 'class-transformer';
 import { Story } from '../entities/story.entity';
 
-export interface StoryDetailsDto extends Story {
+class StoryViewUser {
+  @Expose()
+  id: number;
+
+  @Expose()
+  name: string;
+
+  @Expose()
+  email: string;
+}
+
+class StoryView {
+  @Expose()
+  id: number;
+
+  @Expose()
+  viewedAt: Date;
+
+  @Expose()
+  @Type(() => StoryViewUser)
+  user: StoryViewUser;
+}
+
+export class StoryDetailsDto extends Story {
+  @Expose()
   viewCount: number;
-  views: {
-    id: number;
-    viewedAt: Date;
-    user: {
-      id: number;
-      name: string;
-      email: string;
-    };
-  }[];
+
+  @Expose()
+  @Type(() => StoryView)
+  views: StoryView[];
 }

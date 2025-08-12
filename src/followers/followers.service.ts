@@ -5,6 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { plainToInstance } from 'class-transformer';
 import { Repository } from 'typeorm';
 import { UsersService } from '../users/users.service';
 import { FollowResponseDto } from './dto/follow-response.dto';
@@ -70,11 +71,11 @@ export class FollowersService {
       following: targetUser,
     });
 
-    return {
+    return plainToInstance(FollowResponseDto, {
       followerId: savedFollow.follower.id,
       followingId: savedFollow.following.id,
       followedAt: savedFollow.createdAt,
-    };
+    });
   }
 
   async unfollowUser(
@@ -92,11 +93,11 @@ export class FollowersService {
       throw new NotFoundException('Follow relationship not found');
     }
 
-    return {
+    return plainToInstance(UnfollowResponseDto, {
       unfollowed: true,
       userId,
       targetUserId: unfollowUserDto.userId,
-    };
+    });
   }
 
   async getFollowers(

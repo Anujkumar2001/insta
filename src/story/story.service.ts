@@ -6,6 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { plainToInstance } from 'class-transformer';
 import { FollowersService } from 'src/followers/followers.service';
 import { In, MoreThan, Repository } from 'typeorm';
 import { CreateStoryDto } from './dto/create-story.dto';
@@ -53,7 +54,8 @@ export class StoryService {
       relations: ['user'],
       order: { viewedAt: 'DESC' },
     });
-    return {
+
+    return plainToInstance(StoryDetailsDto, {
       ...story,
       viewCount,
       views: views.map((view) => ({
@@ -65,14 +67,14 @@ export class StoryService {
           email: view.user.email,
         },
       })),
-    };
+    });
   }
 
   async findStoriesByUser(userId: number): Promise<StoryResponseDto[]> {
     const oneDayAgo = new Date();
     oneDayAgo.setDate(oneDayAgo.getDate() - 1);
 
-    return await this.storyRepository.find({
+    const stories = await this.storyRepository.find({
       where: {
         userId,
         createdAt: MoreThan(oneDayAgo),
@@ -80,6 +82,8 @@ export class StoryService {
       },
       order: { createdAt: 'DESC' },
     });
+
+    return plainToInstance(StoryResponseDto, stories);
   }
 
   async update(
@@ -167,9 +171,11 @@ export class StoryService {
     const followingStories = await this.findFollowingStories(userId);
     const viewedStoryIds = await this.getViewedStories(userId);
 
-    return followingStories.map((story) => ({
+    const result = followingStories.map((story) => ({
       story,
       viewed: viewedStoryIds.includes(story.id),
     }));
+
+    return plainToInstance(FollowingStoriesResponseDto, result);
   }
 }
